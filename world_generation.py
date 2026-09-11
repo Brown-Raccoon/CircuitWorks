@@ -3,6 +3,7 @@ import pygame
 import random
 import json
 from  pathlib import Path
+import save_handler
 
 # set constants and variables
 # size of each tile in pixels
@@ -71,10 +72,10 @@ def generate_world(world_seed):
     #return the generated world and seed
     return world, world_seed
 
-def start(screen, world_seed):
+def start(screen, world_seed, world_name):
 
     #send to generate world
-    world, world_seed = generate_world(world_seed)
+    world, world_seed = save_handler.create_world_file(world_name, world_seed, WORLD_SIZE, WORLD_RADIUS)
 
     #get screen size
     screen_width, screen_height = screen.get_size()
