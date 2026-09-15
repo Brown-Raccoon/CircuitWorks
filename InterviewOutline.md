@@ -3,7 +3,7 @@
 Make your to introduce yourselves in a friendly matter not just because it is courteous but a genuine conversation will flow much better.
 Stay on topic: CircuitWorks is a game, talk about experiences with other games or games in a similar genre. (Industry machinery and learning stuff)
 
-# ** Possible Structure for an Interview**
+# **Possible Structure for an Interview**
 Being with background experience with video games in a general sense
 Learn what makes a game enjoyable to them
 Learn why a specific genre interests them the most, if they show this interest
