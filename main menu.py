@@ -3,6 +3,8 @@
 import pygame
 #world generation
 import world_generation_settings
+#character creator
+import character_creator
 
 #variables
 #main game running variable
@@ -47,6 +49,12 @@ load_rect = pygame.Rect(btn_x, load_y, btn_w, btn_h)
 settings_rect = pygame.Rect(btn_x, settings_y, btn_w, btn_h)
 quit_rect = pygame.Rect(btn_x, quit_y, btn_w, btn_h)
 
+#create character button wider than the others so the label fits
+cc_w, cc_h = 280, 50
+cc_x = (screen_width - cc_w)//2
+cc_y = quit_y + 80
+create_character_rect = pygame.Rect(cc_x, cc_y, cc_w, cc_h)
+
 
 #mainloop
 while running == True:
@@ -69,6 +77,10 @@ while running == True:
                 if quit_rect.collidepoint(mouse_pos):
                     running = False
 
+                #if click create character button
+                if create_character_rect.collidepoint(mouse_pos):
+                    character_creator.start(screen, create_character_rect)
+
     #game logic
 
     #draw screen
@@ -85,7 +97,7 @@ while running == True:
     if start_rect.collidepoint(mouse_pos):
         # Brighter when hovered
         pygame.draw.rect(screen, BLUE, start_rect)
-        # Change Text Color to White
+        # Change text color to White
         start_text = button_font.render("Start", True, WHITE)
     #otherwise normal color
     else:
@@ -115,6 +127,17 @@ while running == True:
     quit_text = button_font.render("Quit Game", True, WHITE)
     screen.blit(quit_text, quit_text.get_rect(center=quit_rect.center))
 
+    #Create Character
+    #if hover over create character button
+    if create_character_rect.collidepoint(mouse_pos):
+        # Brighter when hovered
+        pygame.draw.rect(screen, BLUE, create_character_rect)
+        create_character_text = button_font.render("Create Character", True, WHITE)
+    #otherwise normal color
+    else:
+        pygame.draw.rect(screen, DARK_GRAY, create_character_rect)
+        create_character_text = button_font.render("Create Character", True, GRAY)
+    screen.blit(create_character_text, create_character_text.get_rect(center=create_character_rect.center))
+
     #update display
     pygame.display.flip()
-
