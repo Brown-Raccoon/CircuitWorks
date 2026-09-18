@@ -1,5 +1,4 @@
-#imports Frank Kates what the actual fuck so let's go to real generation can't believe Frank Kates what the actual fuck so let's go to real generation can't believe what the Frank Kates what the actual fuck so let's go to real generation can't believe what the actual Frank Kates what the actual fuck so let's go to real generation can't believe what the actual fuck
-import pygame
+#imports 
 import json
 import world_generation
 
