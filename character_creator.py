@@ -53,30 +53,46 @@ def start(screen, anchor_rect):
 
     #font
     label_font = pygame.font.SysFont("arial", 22)
+    small_label_font = pygame.font.SysFont("arial", 16)
     button_font = pygame.font.SysFont("arial", 26)
 
-    #panel pos
-    panel_rect = pygame.Rect(anchor_rect.right + 20, anchor_rect.top, 280, 320)
+    #panel pos - wider/taller than before to fit the sprite selection row
+    panel_rect = pygame.Rect(anchor_rect.right + 20, anchor_rect.top, 340, 490)
 
     #preview window
     preview_rect = pygame.Rect(panel_rect.x + 20, panel_rect.y + 20, 70, 70)
 
-    #hue bar
+    #hue bar (only used when no sprite is selected - see the "Default" button below)
     bar_rect = pygame.Rect(panel_rect.x + 20, preview_rect.bottom + 30, 240, 35)
     hue_bar_surface = build_hue_bar_surface(bar_rect.width, bar_rect.height)
 
     #hex input
     hex_rect = pygame.Rect(panel_rect.x + 20, bar_rect.bottom + 25, 160, 40)
 
+    #sprite selection thumbnails - one small button per sprite set (1-7)
+    sprite_label_y = hex_rect.bottom + 20
+    sprite_row_y = sprite_label_y + 25
+    sprite_size = 36
+    sprite_gap = 6
+    sprite_rects = {}
+    for sprite_id in range(1, 8):
+        x = panel_rect.x + 20 + (sprite_id - 1) * (sprite_size + sprite_gap)
+        sprite_rects[sprite_id] = pygame.Rect(x, sprite_row_y, sprite_size, sprite_size)
+
+    #"Default" button, goes back to the plain colored smiley instead of a sprite
+    default_rect = pygame.Rect(panel_rect.x + 20, sprite_row_y + sprite_size + 15, 110, 36)
+
     #cancel and confrim buttons
     cancel_rect = pygame.Rect(panel_rect.x + 20, panel_rect.bottom - 60, 110, 45)
     confirm_rect = pygame.Rect(panel_rect.x + 150, panel_rect.bottom - 60, 110, 45)
 
-        
-    #start from whatever color is saved
+
+    #start from whatever color/sprite is already saved
     starting_color = character.get_color()
     hue, _, _ = colorsys.rgb_to_hsv(starting_color[0] / 255, starting_color[1] / 255, starting_color[2] / 255)
 
+    #the sprite the player currently has selected in THIS panel (not yet saved to character.py)
+    selected_sprite_id = character.get_sprite()
 
     #hex textbox state
     hex_text = rgb_to_hex(starting_color)
@@ -104,6 +120,8 @@ def start(screen, anchor_rect):
                         dragging_bar = True
                         hue = get_hue_from_pos(event.pos, bar_rect)
                         hex_active = False
+                        #picking a color switches back to the smiley
+                        selected_sprite_id = None
 
 
                     #clicked on hex box
@@ -119,9 +137,24 @@ def start(screen, anchor_rect):
                         confirmed = True
                         running = False
 
-                    #clicked somewhere else
-                    else:
+                    #clicked the "Default" (smiley) button
+                    elif default_rect.collidepoint(event.pos):
+                        selected_sprite_id = None
                         hex_active = False
+
+                    #clicked one of the sprite thumbnails
+                    else:
+                        clicked_sprite = False
+                        for sprite_id, rect in sprite_rects.items():
+                            if rect.collidepoint(event.pos):
+                                selected_sprite_id = sprite_id
+                                hex_active = False
+                                clicked_sprite = True
+                                break
+
+                        #clicked somewhere else entirely
+                        if not clicked_sprite:
+                            hex_active = False
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
@@ -140,8 +173,10 @@ def start(screen, anchor_rect):
                 #if enter is pressed, it confirms hex value
                 elif event.key == pygame.K_RETURN:
                     parsed = hex_to_rgb(hex_text)
-                    if parsed is not None: 
+                    if parsed is not None:
                         hue, _, _ = colorsys.rgb_to_hsv(parsed[0] / 255, parsed [1] / 255, parsed[2] / 255)
+                        #typing a hex color also switches back to the smiley
+                        selected_sprite_id = None
                     hex_active = False
 
                 #needs to be valid hex format
@@ -168,9 +203,12 @@ def start(screen, anchor_rect):
         pygame.draw.rect(screen, (255, 255, 255), panel_rect, 2)
 
 
-        #preview box
+        #preview box - shows the pending sprite OR color selection, whichever is active
         pygame.draw.rect(screen, (20, 20, 20), preview_rect)
-        character.draw(screen, preview_rect.x, preview_rect.y, preview_rect.width, current_color)
+        #clip so a tall sprite can't spill outside the preview box
+        screen.set_clip(preview_rect)
+        character.draw(screen, preview_rect.x, preview_rect.y, preview_rect.width, current_color, selected_sprite_id)
+        screen.set_clip(None)
 
         preview_label = label_font.render("Preview", True, (255, 255, 255))
         screen.blit(preview_label, (preview_rect.right + 10, preview_rect.centery - 10))
@@ -189,6 +227,28 @@ def start(screen, anchor_rect):
         hex_display_text = button_font.render("#" + hex_text, True, (0, 0, 0))
         screen.blit(hex_display_text, (hex_rect.x + 10, hex_rect.y + 8))
 
+        #sprite selection label + thumbnails
+        sprite_label = small_label_font.render("Or pick a character:", True, (255, 255, 255))
+        screen.blit(sprite_label, (panel_rect.x + 20, sprite_label_y))
+
+        for sprite_id, rect in sprite_rects.items():
+            #highlight the currently selected sprite's thumbnail
+            if selected_sprite_id == sprite_id:
+                pygame.draw.rect(screen, (255, 255, 0), rect.inflate(4, 4), 2)
+
+            pygame.draw.rect(screen, (20, 20, 20), rect)
+            thumbnail = character.get_idle_frame(sprite_id)
+            thumbnail = pygame.transform.scale(thumbnail, (rect.width - 4, rect.height - 4))
+            screen.blit(thumbnail, (rect.x + 2, rect.y + 2))
+
+        #"Default" (smiley) button
+        if selected_sprite_id is None:
+            pygame.draw.rect(screen, (100, 100, 220), default_rect)
+        else:
+            pygame.draw.rect(screen, (64, 64, 64), default_rect)
+        default_text = small_label_font.render("Default", True, (255, 255, 255))
+        screen.blit(default_text, default_text.get_rect(center=default_rect.center))
+
         #cancel button
         pygame.draw.rect(screen, (200, 40, 40), cancel_rect)
         cancel_text = button_font.render("Cancel", True, (255, 255, 255))
@@ -202,12 +262,11 @@ def start(screen, anchor_rect):
         pygame.display.flip()
 
     if confirmed:
-        character.set_color(current_color)
+        character.set_sprite(selected_sprite_id)
+        #only save the color if we're actually staying on the smiley
+        if selected_sprite_id is None:
+            character.set_color(current_color)
 
 
 
     return
-
-    
-                    
-
