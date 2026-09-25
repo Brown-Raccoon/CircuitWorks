@@ -1,0 +1,74 @@
+{
+    "tiles": {
+        "0": {
+            "name": "air",
+            "type": "terrain",
+            "solid": false,
+            "slowed": false,
+            "color": [135, 206, 235]
+        },
+        "1": {
+            "name": "water",
+            "type": "terrain",
+            "solid": false,
+            "slowed": true,
+            "color": [40, 120, 220]
+        },
+        "2": {
+            "name": "grass",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [80, 180, 80]
+        },
+        "3": {
+            "name": "dirt",
+            "type": "terrain",
+            "walkable": true,
+            "slowed": false,
+            "color": [130, 85, 40]
+        },
+        "4": {
+            "name": "stone",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [100, 100, 100]
+        },
+        "5": {
+            "name": "lava",
+            "type": "hazard",
+            "solid": false,
+            "slowed": false,
+            "color": [255, 69, 0]
+        },
+        "6": {
+            "name": "sand",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [194, 178, 128]
+        },
+        "7": {
+            "name": "snow",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [255, 250, 250]
+        },
+        "8": {
+            "name": "ice",
+            "type": "terrain",
+            "solid": true,
+            "slowed": true,
+            "color": [173, 216, 230]
+        },
+        "9": {
+            "name": "wood",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [139, 69, 19]
+        }
+    }
+}

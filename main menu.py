@@ -1,18 +1,22 @@
 #imports
 #pygame
 import pygame
+#world generation
+import world_generation_settings
 
 #variables
 #main game running variable
 running = True
 
 #color constants
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 LIGHT_RED = (255, 102, 102)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 DARK_GRAY = (64, 64, 64)
+BLUE = (0, 0, 255)
+CHARCOAL = (30, 30, 35)
 
 #start screen
 pygame.init()
@@ -54,16 +58,21 @@ while running == True:
         #if click x end loop
         if event.type == pygame.QUIT:
             running = False
-        #if click quit button end loop
+        #if click any button
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
+                #if click start button
+                if start_rect.collidepoint(mouse_pos):
+                    world_generation_settings.start(screen)
+
+                #if click quit button
                 if quit_rect.collidepoint(mouse_pos):
                     running = False
 
     #game logic
 
     #draw screen
-    screen.fill(BLACK)
+    screen.fill(CHARCOAL)
 
     #draw title
     title_surface = title_font.render("CircuitWorks", True, WHITE)
@@ -72,8 +81,16 @@ while running == True:
 
     #draw buttons
     #start
-    pygame.draw.rect(screen, DARK_GRAY, start_rect)
-    start_text = button_font.render("Start", True, GRAY)
+    #if hover over start
+    if start_rect.collidepoint(mouse_pos):
+        # Brighter when hovered
+        pygame.draw.rect(screen, BLUE, start_rect)
+        # Change Text Color to White
+        start_text = button_font.render("Start", True, WHITE)
+    #otherwise normal color
+    else:
+        pygame.draw.rect(screen, DARK_GRAY, start_rect)
+        start_text = button_font.render("Start", True, GRAY)
     screen.blit(start_text, start_text.get_rect(center=start_rect.center))
 
     #load
@@ -100,5 +117,4 @@ while running == True:
 
     #update display
     pygame.display.flip()
-#end game
-pygame.quit()
+
