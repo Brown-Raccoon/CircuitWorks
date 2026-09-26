@@ -80,7 +80,7 @@ def start(screen, world_seed, world_name):
     
     print(f"save file created at: {save_path}\n")
     #send to generate world
-    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_name, world_seed, WORLD_SIZE, WORLD_RADIUS)
+    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
 
     #get screen size
     screen_width, screen_height = screen.get_size()
