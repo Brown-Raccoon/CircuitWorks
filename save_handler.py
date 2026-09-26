@@ -1,5 +1,7 @@
 #imports 
 import json
+
+from networkx import nodes
 import world_generation
 import resource_nodes
 from pathlib import Path
@@ -19,14 +21,24 @@ SAVE_PATH = Path(__file__).with_name("saves")
 ## Output ========
 # N/A
 def create_node_save(save, name, nodes):
+
+    #create node save file
+    file_path = Path(f"{save}/{name}.nodes.json")
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
     #create node save file
     with open(f"{save}/{name}.nodes.json", "a", encoding="utf-8") as file:
         #print success
         print("node save created succesfully\n")
 
+    node_list = [
+        {"x": x, "y": y, **node}
+        for (x, y), node in nodes.items()
+        ]
+
     #write node data to file
     with open(f"{save}/{name}.nodes.json", "w", encoding="utf-8") as file:
-        json.dump(nodes, file, indent=4)
+        json.dump(node_list, file, indent=4)
 
 ### Load Node save data
 ## Input =========
@@ -37,10 +49,19 @@ def create_node_save(save, name, nodes):
 def load_node_save(save, name):
     #open node save file and read data
     with open(f"{save}/{name}.nodes.json", "r", encoding="utf-8") as file:
-        nodes = json.load(file)
+        node_list = json.load(file)
 
+    #create node data dictionary
+    nodes = {}
+    for node in node_list:
+        nodes[(node["x"], node["y"])] = {
+            "id": node["id"],
+            "name": node["name"],
+            "concentration": node["concentration"]
+        }
+    
     #return node data
-    return nodes
+    return node_list
 
 ### Save Node save data
 ## Input =========
@@ -66,6 +87,10 @@ def save_node_save(save, name, nodes):
 # World list
 # Seed int
 def create_world_file(save, name, seed, size, radius):
+
+    #create world file
+    file_path = Path(f"{save}/{name}.dat")
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     
     #create world
     with open(f"{save}/{name}.dat","a") as file:
@@ -98,12 +123,16 @@ def create_world_file(save, name, seed, size, radius):
 
                 #get resource node if it exists
                 if(nodes.get((x,y))):
-                    resource_node = nodes[(x,y,"resource")]
+                    resource_node_temp = nodes[(x,y)]
+                    resource_node = resource_node_temp["id"]
                 else:
                     resource_node = 0
 
                 #write resource node to save
                 file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
+
+    #create node save file
+    create_node_save(save, name, nodes)
 
     #return world and seed
     return world, nodes, seed
@@ -161,7 +190,11 @@ def save_world(save, world, name, radius):
 # CharacterP str (Path to character file)
 def create_character_file(save, sName, name):
     #create character file
-    with open(f"{save}/{sName}.character.json", "a", encoding="utf-8") as file:
+    file_path = Path(f"{save}/{sName}.player.json")
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    #create character file
+    with open(f"{save}/{sName}.player.json", "a", encoding="utf-8") as file:
         #print success
         print("character created succesfully\n")
 
@@ -176,11 +209,11 @@ def create_character_file(save, sName, name):
     }]
 
     #write character data to file
-    with open(f"{save}/{sName}.character.json", "w", encoding="utf-8") as file:
+    with open(f"{save}/{sName}.player.json", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
     #return character data and path
-    return data, f"{save}/{sName}.character.json"
+    return data, f"{save}/{sName}.player.json"
 
 ### Load Character File
 ## Input =========
@@ -203,6 +236,7 @@ def load_character_file(characterP, characters):
 ## Output ========
 # N/A
 def save_character_file(characterP, characters):
+
     #open character file and write data
     with open(characterP, "w", encoding="utf-8") as file:
         json.dump(characters, file, indent=4)
@@ -222,6 +256,7 @@ def create_save_file(name):
     data = {
         "name" : f"{sName}",
         "world" : f"{sName}.dat",
+        "none" : f"{sName}.nodes.json",
         "entities" : f"{sName}.entities.json",
         "players" : f"{sName}.players.json",
         "version" : VERSION,
@@ -232,13 +267,18 @@ def create_save_file(name):
     while Path(f"{SAVE_PATH}/{name}/{sName}.json").exists():
         name += "_"
 
+    # create save file directory
+    file_path = Path(f"{SAVE_PATH}/{name}")
+    save_path = Path(f"{file_path}/{sName}.json")
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+
     # create save file
-    with open(f"{SAVE_PATH}/{name}/{sName}.json", "a", encoding="utf-8") as file:
+    with open(f"{save_path}", "a", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
         print("save file created succesfully\n")
 
     #return path name
-    return name
+    return file_path
 
 ### Load Save File
 ## Input =========

@@ -1,0 +1,9 @@
+{
+    "name": "test",
+    "world": "test.dat",
+    "none": "test.nodes.json",
+    "entities": "test.entities.json",
+    "players": "test.players.json",
+    "version": "0.3.0",
+    "last_saved": 0.0
+}

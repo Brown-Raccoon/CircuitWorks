@@ -150,6 +150,9 @@ def generate_resource_nodes(world_seed, world_radius):
                     # Display name
                     "name": resource_info["name"],
 
+                    # Identifier for the resource type
+                    "id": resource_info["id"],
+
                     # Low / Medium / High
                     "concentration": concentration,
 
