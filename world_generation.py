@@ -76,7 +76,8 @@ def generate_world(world_seed):
 def start(screen, world_seed, world_name):
 
     #send to generate world
-    world, world_seed = save_handler.create_world_file(world_name, world_seed, WORLD_SIZE, WORLD_RADIUS)
+    world = save_handler.get_world(world_name, WORLD_RADIUS)
+    #world, world_seed = save_handler.create_world_file(world_name, world_seed, WORLD_SIZE, WORLD_RADIUS)
 
     #place the character at the center of the newly generated world
     character.spawn_at_center()

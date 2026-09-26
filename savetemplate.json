@@ -1,0 +1,8 @@
+{
+    "name" : "save_name",
+    "world" : "world_path",
+    "entities" : "entity_path",
+    "players" : "player_path",
+    "virsion" : "version_number",
+    "last_saved" : "last_saved_timestamp"
+}
