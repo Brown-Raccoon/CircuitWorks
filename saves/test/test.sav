@@ -4,6 +4,6 @@
     "none": "test.nodes.json",
     "entities": "test.entities.json",
     "players": "test.players.json",
-    "version": "0.3.0",
+    "version": "0.3.3",
     "last_saved": 0.0
 }

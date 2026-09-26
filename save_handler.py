@@ -316,7 +316,8 @@ def list_saves():
     for file in Path(SAVE_PATH).glob("**/*.sav"):
         data = json.load(open(file, "r", encoding="utf-8"))
         if data["version"] == VERSION:
-            path_list.append(file)
+            filepath = Path(file).with_suffix('')
+            path_list.append(filepath)
 
     #return list of save file paths
     return path_list
