@@ -4,7 +4,7 @@ import random
 import json
 from  pathlib import Path
 import save_handler
-import character
+import resource_nodes
 
 # set constants and variables
 # size of each tile in pixels
@@ -75,20 +75,21 @@ def generate_world(world_seed):
 
 def start(screen, world_seed, world_name):
 
+    #create save file
+    save_path = save_handler.create_save_file(world_name)
+    
+    print(f"save file created at: {save_path}\n")
     #send to generate world
-    world, world_seed = save_handler.create_world_file(world_name, world_seed, WORLD_SIZE, WORLD_RADIUS)
-
-    #place the character at the center of the newly generated world
-    character.spawn_at_center()
+    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
 
     #get screen size
     screen_width, screen_height = screen.get_size()
 
 
     #"camera"
-    #camera follows the character's grid position, updated every frame in the loop below
-    camera_x = character.grid_x
-    camera_y = character.grid_y
+    #sets "camera position"
+    camera_x = 0
+    camera_y = 0
 
     #main world loop
     running = True
@@ -105,24 +106,6 @@ def start(screen, world_seed, world_name):
                 #esc to leave world(temporary)
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
-                #movement keys (WASD + arrow keys), one tile per key press
-                #up
-                elif event.key in (pygame.K_w, pygame.K_UP):
-                    character.move(0, -1, WORLD_RADIUS)
-                #down
-                elif event.key in (pygame.K_s, pygame.K_DOWN):
-                    character.move(0, 1, WORLD_RADIUS)
-                #left
-                elif event.key in (pygame.K_a, pygame.K_LEFT):
-                    character.move(-1, 0, WORLD_RADIUS)
-                #right
-                elif event.key in (pygame.K_d, pygame.K_RIGHT):
-                    character.move(1, 0, WORLD_RADIUS)
-
-        #camera follows the character's current grid position every frame
-        camera_x = character.grid_x
-        camera_y = character.grid_y
 
         #draw screen
         #background
@@ -158,11 +141,7 @@ def start(screen, world_seed, world_name):
                     #draw tile
                     pygame.draw.rect(screen, tile_color, (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE))
 
-        #draw the character on top of the tiles
-        #since the camera always centers on the character, its screen position is always the screen center
-        character_screen_x = screen_width // 2
-        character_screen_y = screen_height // 2
-        character.draw(screen, character_screen_x, character_screen_y, PIXEL_SIZE)
+        resource_nodes.draw_resource_nodes(screen, resource_nodes_data, camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE) 
 
         #display world
         pygame.display.flip()

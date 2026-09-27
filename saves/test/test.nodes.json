@@ -1,0 +1,382 @@
+[
+    {
+        "x": -3,
+        "y": -16,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -3,
+        "y": -15,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -2,
+        "y": -12,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -3,
+        "y": -14,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": 0,
+        "y": -15,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": 1,
+        "y": -14,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -4,
+        "y": -13,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -1,
+        "y": -14,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -4,
+        "y": -14,
+        "resource": "copper",
+        "name": "Copper",
+        "id": 3,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -8,
+        "y": -4,
+        "resource": "limestone",
+        "name": "Limestone",
+        "id": 4,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -3,
+        "y": -3,
+        "resource": "limestone",
+        "name": "Limestone",
+        "id": 4,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -2,
+        "y": -5,
+        "resource": "limestone",
+        "name": "Limestone",
+        "id": 4,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -5,
+        "y": -1,
+        "resource": "limestone",
+        "name": "Limestone",
+        "id": 4,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -7,
+        "y": -5,
+        "resource": "limestone",
+        "name": "Limestone",
+        "id": 4,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -8,
+        "y": -2,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -5,
+        "y": -6,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -7,
+        "y": -3,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -11,
+        "y": -7,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -6,
+        "y": -6,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "high",
+        "resource_per_second": 4,
+        "resources_remaining": 1200
+    },
+    {
+        "x": -7,
+        "y": -6,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -5,
+        "y": -5,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -10,
+        "y": -7,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -8,
+        "y": -5,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -11,
+        "y": -3,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": 0,
+        "y": 10,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -1,
+        "y": 13,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "high",
+        "resource_per_second": 4,
+        "resources_remaining": 1200
+    },
+    {
+        "x": -2,
+        "y": 12,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": 0,
+        "y": 9,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -2,
+        "y": 10,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -1,
+        "y": 9,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": 2,
+        "y": 15,
+        "resource": "sulfur",
+        "name": "Sulfur",
+        "id": 5,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -13,
+        "y": 13,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -13,
+        "y": 9,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "medium",
+        "resource_per_second": 2,
+        "resources_remaining": 600
+    },
+    {
+        "x": -12,
+        "y": 13,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -10,
+        "y": 13,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -14,
+        "y": 11,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -11,
+        "y": 10,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    },
+    {
+        "x": -13,
+        "y": 10,
+        "resource": "coal",
+        "name": "Coal",
+        "id": 1,
+        "concentration": "low",
+        "resource_per_second": 1,
+        "resources_remaining": 300
+    }
+]
