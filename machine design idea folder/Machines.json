@@ -1,0 +1,360 @@
+{
+    "miner": {
+        "name": "miner",
+        "canvas_size": 64,
+        "tile_size": 32,
+        "description": "Iron frame 4 sides only, open middle, crane arm with drill facing center",
+        "colors": {
+            "shadow": [
+                0,
+                0,
+                0,
+                60
+            ],
+            "iron": [
+                115,
+                120,
+                130
+            ],
+            "iron_dark": [
+                75,
+                80,
+                90
+            ],
+            "iron_light": [
+                160,
+                165,
+                175
+            ],
+            "frame": [
+                45,
+                48,
+                54
+            ],
+            "steel": [
+                165,
+                170,
+                180
+            ],
+            "crane": [
+                85,
+                90,
+                100
+            ],
+            "crane_arm": [
+                95,
+                100,
+                110
+            ],
+            "drill_body": [
+                70,
+                75,
+                85
+            ],
+            "drill_bit": [
+                190,
+                195,
+                205
+            ],
+            "belt": [
+                42,
+                44,
+                50
+            ],
+            "belt_line": [
+                85,
+                88,
+                96
+            ],
+            "yellow": [
+                255,
+                205,
+                45
+            ],
+            "green": [
+                90,
+                210,
+                110
+            ]
+        },
+        "draw_calls": [
+            {
+                "func": "ellipse",
+                "x": 32,
+                "y": 56,
+                "w": 38,
+                "h": 10,
+                "color": "shadow",
+                "layer": 0
+            },
+            {
+                "func": "rect",
+                "x": 16,
+                "y": 16,
+                "w": 32,
+                "h": 5,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 1.5,
+                "radius": 1,
+                "layer": 1,
+                "marker": "frame_top"
+            },
+            {
+                "func": "rect",
+                "x": 16,
+                "y": 43,
+                "w": 32,
+                "h": 5,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 1.5,
+                "radius": 1,
+                "layer": 1,
+                "marker": "frame_bottom"
+            },
+            {
+                "func": "rect",
+                "x": 16,
+                "y": 21,
+                "w": 5,
+                "h": 22,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 1.5,
+                "radius": 1,
+                "layer": 1,
+                "marker": "frame_left"
+            },
+            {
+                "func": "rect",
+                "x": 43,
+                "y": 21,
+                "w": 5,
+                "h": 22,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 1.5,
+                "radius": 1,
+                "layer": 1,
+                "marker": "frame_right"
+            },
+            {
+                "func": "circle",
+                "x": 18.5,
+                "y": 18.5,
+                "r": 1.5,
+                "color": "iron_dark",
+                "layer": 2
+            },
+            {
+                "func": "circle",
+                "x": 45.5,
+                "y": 18.5,
+                "r": 1.5,
+                "color": "iron_dark",
+                "layer": 2
+            },
+            {
+                "func": "circle",
+                "x": 18.5,
+                "y": 45.5,
+                "r": 1.5,
+                "color": "iron_dark",
+                "layer": 2
+            },
+            {
+                "func": "circle",
+                "x": 45.5,
+                "y": 45.5,
+                "r": 1.5,
+                "color": "iron_dark",
+                "layer": 2
+            },
+            {
+                "func": "circle",
+                "x": 18.5,
+                "y": 18.5,
+                "r": 0.7,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 45.5,
+                "y": 18.5,
+                "r": 0.7,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 18.5,
+                "y": 45.5,
+                "r": 0.7,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 45.5,
+                "y": 45.5,
+                "r": 0.7,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 26,
+                "y": 10,
+                "w": 12,
+                "h": 8,
+                "color": "crane",
+                "outline": "frame",
+                "outline_width": 1.2,
+                "radius": 2,
+                "layer": 2,
+                "marker": "crane_base"
+            },
+            {
+                "func": "rect",
+                "x": 29,
+                "y": 14,
+                "w": 6,
+                "h": 8,
+                "color": "crane_arm",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 1,
+                "layer": 3,
+                "marker": "crane_post"
+            },
+            {
+                "func": "rect",
+                "x": 29,
+                "y": 21,
+                "w": 6,
+                "h": 14,
+                "color": "crane_arm",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 1,
+                "layer": 3,
+                "marker": "crane_arm"
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 21,
+                "r": 2.5,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 27,
+                "y": 33,
+                "w": 10,
+                "h": 7,
+                "color": "drill_body",
+                "outline": "frame",
+                "outline_width": 1.2,
+                "radius": 1.5,
+                "layer": 4,
+                "marker": "drill_housing"
+            },
+            {
+                "func": "rect",
+                "x": 30,
+                "y": 39,
+                "w": 4,
+                "h": 6,
+                "color": "drill_bit",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 5,
+                "marker": "drill_bit"
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 46,
+                "r": 1.8,
+                "color": "frame",
+                "layer": 5
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 45,
+                "r": 0.8,
+                "color": "steel",
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 31,
+                "y": 35,
+                "w": 2,
+                "h": 4,
+                "color": "frame",
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 48,
+                "y": 28,
+                "w": 8,
+                "h": 10,
+                "color": "belt",
+                "outline": "frame",
+                "outline_width": 1.2,
+                "radius": 2,
+                "layer": 2,
+                "marker": "output"
+            },
+            {
+                "func": "rect",
+                "x": 49,
+                "y": 30,
+                "w": 6,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 49,
+                "y": 34,
+                "w": 6,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 3
+            },
+            {
+                "func": "polygon",
+                "points": [
+                    [
+                        50,
+                        32
+                    ],
+                    [
+                        55,
+                        30
+                    ],
+                    [
+                        55,
+                        34
+                    ]
+                ],
+                "color": "yellow",
+                "layer": 4
+            }
+        ]
+    }
+}
