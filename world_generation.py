@@ -2,9 +2,12 @@
 import pygame
 import random
 import json
-from  pathlib import Path
+from pathlib import Path
 import save_handler
 import resource_nodes
+from inventory import Inventory
+import inventory_ui
+import character
 
 # set constants and variables
 # size of each tile in pixels
@@ -77,19 +80,40 @@ def start(screen, world_seed, world_name):
 
     #create save file
     save_path = save_handler.create_save_file(world_name)
-    
+
     print(f"save file created at: {save_path}\n")
+
     #send to generate world
-    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
+    world, resource_nodes_data, world_seed = save_handler.create_world_file(
+        save_path,
+        world_seed,
+        WORLD_SIZE,
+        WORLD_RADIUS
+    )
+
+    #place character at center of world
+    character.spawn_at_center()
+
+    #create player inventory
+    player_inventory = Inventory()
+
+    #temporary test items
+    player_inventory.add_item("copper_wire", 10)
+    player_inventory.add_item("resistor", 5)
+    player_inventory.add_item("circuit_board", 3)
+    player_inventory.add_item("miner", 2)
+    player_inventory.add_item("assembler", 1)
+
+    #tracks if inventory is open
+    inventory_open = False
 
     #get screen size
     screen_width, screen_height = screen.get_size()
 
-
     #"camera"
-    #sets "camera position"
-    camera_x = 0
-    camera_y = 0
+    #camera follows character
+    camera_x = character.grid_x
+    camera_y = character.grid_y
 
     #main world loop
     running = True
@@ -103,9 +127,40 @@ def start(screen, world_seed, world_name):
 
             #keybord input
             elif event.type == pygame.KEYDOWN:
+
+                #open/close inventory
+                if event.key == pygame.K_i:
+                    inventory_open = not inventory_open
+
                 #esc to leave world(temporary)
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+                elif event.key == pygame.K_ESCAPE:
+                    if inventory_open:
+                        inventory_open = False
+                    else:
+                        running = False
+
+                #movement only works while inventory is closed
+                elif not inventory_open:
+
+                    #up
+                    if event.key in (pygame.K_w, pygame.K_UP):
+                        character.move(0, -1, WORLD_RADIUS)
+
+                    #down
+                    elif event.key in (pygame.K_s, pygame.K_DOWN):
+                        character.move(0, 1, WORLD_RADIUS)
+
+                    #left
+                    elif event.key in (pygame.K_a, pygame.K_LEFT):
+                        character.move(-1, 0, WORLD_RADIUS)
+
+                    #right
+                    elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                        character.move(1, 0, WORLD_RADIUS)
+
+        #camera follows character
+        camera_x = character.grid_x
+        camera_y = character.grid_y
 
         #draw screen
         #background
@@ -119,12 +174,15 @@ def start(screen, world_seed, world_name):
         half_tiles_x = tiles_x // 2
         half_tiles_y = tiles_y // 2
 
-
         #draw the tiles
         for x in range(camera_x - half_tiles_x, camera_x + half_tiles_x + 1):
             for y in range(camera_y - half_tiles_y, camera_y + half_tiles_y + 1):
+
                 #make sure coordinates exist in world
-                if(-WORLD_RADIUS <= x <= WORLD_RADIUS and -WORLD_RADIUS <= y <= WORLD_RADIUS):
+                if (
+                    -WORLD_RADIUS <= x <= WORLD_RADIUS
+                    and -WORLD_RADIUS <= y <= WORLD_RADIUS
+                ):
                     #get tile id
                     tile_id = world[(x, y)]
 
@@ -135,13 +193,48 @@ def start(screen, world_seed, world_name):
                     tile_color = tuple(tile_info["color"])
 
                     #convert world coordinates to screen coordinates
-                    screen_x = (screen_width // 2 + (x - camera_x) * PIXEL_SIZE)
-                    screen_y = (screen_height // 2 + (y - camera_y) * PIXEL_SIZE)
+                    screen_x = (
+                        screen_width // 2
+                        + (x - camera_x) * PIXEL_SIZE
+                    )
+
+                    screen_y = (
+                        screen_height // 2
+                        + (y - camera_y) * PIXEL_SIZE
+                    )
 
                     #draw tile
-                    pygame.draw.rect(screen, tile_color, (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE))
+                    pygame.draw.rect(
+                        screen,
+                        tile_color,
+                        (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE)
+                    )
 
-        resource_nodes.draw_resource_nodes(screen, resource_nodes_data, camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE) 
+        #draw resource nodes
+        resource_nodes.draw_resource_nodes(
+            screen,
+            resource_nodes_data,
+            camera_x,
+            camera_y,
+            screen_width,
+            screen_height,
+            PIXEL_SIZE
+        )
+
+        #draw character on top of world
+        character_screen_x = screen_width // 2
+        character_screen_y = screen_height // 2
+
+        character.draw(
+            screen,
+            character_screen_x,
+            character_screen_y,
+            PIXEL_SIZE
+        )
+
+        #draw inventory if open
+        if inventory_open:
+            inventory_ui.draw(screen, player_inventory)
 
         #display world
         pygame.display.flip()
