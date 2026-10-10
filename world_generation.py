@@ -3,6 +3,8 @@ import pygame
 import random
 import json
 from  pathlib import Path
+import save_handler
+import resource_nodes
 
 # set constants and variables
 # size of each tile in pixels
@@ -71,10 +73,14 @@ def generate_world(world_seed):
     #return the generated world and seed
     return world, world_seed
 
-def start(screen, world_seed):
+def start(screen, world_seed, world_name):
 
+    #create save file
+    save_path = save_handler.create_save_file(world_name)
+    
+    print(f"save file created at: {save_path}\n")
     #send to generate world
-    world, world_seed = generate_world(world_seed)
+    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
 
     #get screen size
     screen_width, screen_height = screen.get_size()
@@ -92,7 +98,7 @@ def start(screen, world_seed):
         #detect events/inputs
         for event in pygame.event.get():
             #allow window to close
-            if event.type == pygame.quit:
+            if event.type == pygame.QUIT:
                 running = False
 
             #keybord input
@@ -134,6 +140,8 @@ def start(screen, world_seed):
 
                     #draw tile
                     pygame.draw.rect(screen, tile_color, (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE))
+
+        resource_nodes.draw_resource_nodes(screen, resource_nodes_data, camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE) 
 
         #display world
         pygame.display.flip()
