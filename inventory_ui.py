@@ -14,6 +14,9 @@ WHITE = (255, 255, 255)
 LIGHT_GRAY = (205, 205, 215)
 MUTED_GRAY = (145, 145, 155)
 
+PLACE_BUTTON_COLOR = (75, 105, 145)
+PLACE_BUTTON_HOVER_COLOR = (90, 125, 170)
+
 
 # item helpers
 
@@ -34,6 +37,145 @@ def get_items_by_category(player_inventory, category):
 
     return category_items
 
+
+# returns the main panel and both category rectangles
+# this keeps drawing and click detection using the exact same layout
+def get_inventory_layout(screen):
+    screen_width, screen_height = screen.get_size()
+
+    # panel size
+    panel_width = min(900, screen_width - 120)
+    panel_height = min(650, screen_height - 120)
+
+    panel_x = (screen_width - panel_width) // 2
+    panel_y = (screen_height - panel_height) // 2
+
+    panel_rect = pygame.Rect(
+        panel_x,
+        panel_y,
+        panel_width,
+        panel_height
+    )
+
+    # category layout
+    section_top = panel_rect.y + 85
+    section_bottom_margin = 25
+    section_gap = 20
+
+    section_height = (
+        panel_rect.bottom
+        - section_top
+        - section_bottom_margin
+    )
+
+    section_width = (
+        panel_width
+        - 60
+        - section_gap
+    ) // 2
+
+    # components on left
+    components_rect = pygame.Rect(
+        panel_rect.x + 30,
+        section_top,
+        section_width,
+        section_height
+    )
+
+    # machines on right
+    machines_rect = pygame.Rect(
+        components_rect.right + section_gap,
+        section_top,
+        section_width,
+        section_height
+    )
+
+    return panel_rect, components_rect, machines_rect
+
+
+# returns the visible item rows for one category
+# each entry is:
+# (item_key, quantity, item_info, row_rect)
+def get_category_rows(
+    section_rect,
+    player_inventory,
+    category
+):
+    rows = []
+
+    category_items = get_items_by_category(
+        player_inventory,
+        category
+    )
+
+    # item row settings
+    row_height = 50
+    row_gap = 8
+    row_x = section_rect.x + 12
+    row_width = section_rect.width - 24
+    row_y = section_rect.y + 55
+
+    for item_key, quantity, item_info in category_items:
+
+        # stop if there is no more visible room
+        if row_y + row_height > section_rect.bottom - 12:
+            break
+
+        row_rect = pygame.Rect(
+            row_x,
+            row_y,
+            row_width,
+            row_height
+        )
+
+        rows.append(
+            (
+                item_key,
+                quantity,
+                item_info,
+                row_rect
+            )
+        )
+
+        row_y += row_height + row_gap
+
+    return rows
+
+
+# makes the Place button rectangle for a machine row
+def get_place_button_rect(row_rect):
+    button_width = 78
+    button_height = 32
+
+    return pygame.Rect(
+        row_rect.right - button_width - 9,
+        row_rect.centery - button_height // 2,
+        button_width,
+        button_height
+    )
+
+
+# checks whether the player clicked a machine's Place button
+# returns the machine item key, or None if no Place button was clicked
+def handle_click(screen, mouse_pos, player_inventory):
+    _, _, machines_rect = get_inventory_layout(screen)
+
+    machine_rows = get_category_rows(
+        machines_rect,
+        player_inventory,
+        "machine"
+    )
+
+    for item_key, quantity, item_info, row_rect in machine_rows:
+
+        place_button_rect = get_place_button_rect(row_rect)
+
+        if place_button_rect.collidepoint(mouse_pos):
+            return item_key
+
+    return None
+
+
 # draw item row
 def draw_item_row(
     screen,
@@ -41,10 +183,17 @@ def draw_item_row(
     item_info,
     quantity,
     name_font,
-    quantity_font
+    quantity_font,
+    place_button_rect=None,
+    button_font=None
 ):
     # row background
-    pygame.draw.rect(screen, ROW_COLOR, row_rect, border_radius=6)
+    pygame.draw.rect(
+        screen,
+        ROW_COLOR,
+        row_rect,
+        border_radius=6
+    )
 
     # item name
     name_text = name_font.render(
@@ -58,6 +207,12 @@ def draw_item_row(
         (row_rect.x + 12, row_rect.y + 10)
     )
 
+    # if this is a machine row, leave room for the Place button
+    if place_button_rect is not None:
+        quantity_right = place_button_rect.left - 10
+    else:
+        quantity_right = row_rect.right - 12
+
     # item quantity
     quantity_text = quantity_font.render(
         f"x{quantity}",
@@ -66,14 +221,55 @@ def draw_item_row(
     )
 
     quantity_rect = quantity_text.get_rect(
-        midright=(row_rect.right - 12, row_rect.centery)
+        midright=(quantity_right, row_rect.centery)
     )
 
-    screen.blit(quantity_text, quantity_rect)
+    screen.blit(
+        quantity_text,
+        quantity_rect
+    )
+
+    # machine Place button
+    if place_button_rect is not None and button_font is not None:
+        mouse_pos = pygame.mouse.get_pos()
+
+        if place_button_rect.collidepoint(mouse_pos):
+            button_color = PLACE_BUTTON_HOVER_COLOR
+        else:
+            button_color = PLACE_BUTTON_COLOR
+
+        pygame.draw.rect(
+            screen,
+            button_color,
+            place_button_rect,
+            border_radius=5
+        )
+
+        pygame.draw.rect(
+            screen,
+            BORDER_COLOR,
+            place_button_rect,
+            1,
+            border_radius=5
+        )
+
+        place_text = button_font.render(
+            "Place",
+            True,
+            WHITE
+        )
+
+        place_text_rect = place_text.get_rect(
+            center=place_button_rect.center
+        )
+
+        screen.blit(
+            place_text,
+            place_text_rect
+        )
 
 
-#draw category sections
-
+# draw category sections
 def draw_category_section(
     screen,
     section_rect,
@@ -83,7 +279,8 @@ def draw_category_section(
     title_font,
     item_font,
     quantity_font,
-    small_font
+    small_font,
+    button_font
 ):
     # section background
     pygame.draw.rect(
@@ -112,16 +309,20 @@ def draw_category_section(
         midtop=(section_rect.centerx, section_rect.y + 12)
     )
 
-    screen.blit(title_text, title_rect)
+    screen.blit(
+        title_text,
+        title_rect
+    )
 
-    # get all owned items in this category
-    category_items = get_items_by_category(
+    # get visible rows in this category
+    rows = get_category_rows(
+        section_rect,
         player_inventory,
         category
     )
 
     # if the category is empty, show a message
-    if len(category_items) == 0:
+    if len(rows) == 0:
         empty_text = small_font.render(
             "No items",
             True,
@@ -132,29 +333,22 @@ def draw_category_section(
             center=(section_rect.centerx, section_rect.y + 90)
         )
 
-        screen.blit(empty_text, empty_rect)
+        screen.blit(
+            empty_text,
+            empty_rect
+        )
         return
 
-    # item row settings
-    row_height = 50
-    row_gap = 8
-    row_x = section_rect.x + 12
-    row_width = section_rect.width - 24
-    row_y = section_rect.y + 55
+    # draw each item row
+    for item_key, quantity, item_info, row_rect in rows:
 
-    # draw each item in the category
-    for item_key, quantity, item_info in category_items:
+        place_button_rect = None
 
-        # stop drawing if we run out of room
-        if row_y + row_height > section_rect.bottom - 12:
-            break
-
-        row_rect = pygame.Rect(
-            row_x,
-            row_y,
-            row_width,
-            row_height
-        )
+        # only machine rows receive Place buttons
+        if category == "machine":
+            place_button_rect = get_place_button_rect(
+                row_rect
+            )
 
         draw_item_row(
             screen,
@@ -162,14 +356,13 @@ def draw_category_section(
             item_info,
             quantity,
             item_font,
-            quantity_font
+            quantity_font,
+            place_button_rect,
+            button_font
         )
 
-        row_y += row_height + row_gap
 
-
-
-#main inventory drawing system
+# main inventory drawing system
 def draw(screen, player_inventory):
     screen_width, screen_height = screen.get_size()
 
@@ -182,18 +375,8 @@ def draw(screen, player_inventory):
     overlay.fill((0, 0, 0, 145))
     screen.blit(overlay, (0, 0))
 
-    # panel size
-    panel_width = min(900, screen_width - 120)
-    panel_height = min(650, screen_height - 120)
-
-    panel_x = (screen_width - panel_width) // 2
-    panel_y = (screen_height - panel_height) // 2
-
-    panel_rect = pygame.Rect(
-        panel_x,
-        panel_y,
-        panel_width,
-        panel_height
+    panel_rect, components_rect, machines_rect = (
+        get_inventory_layout(screen)
     )
 
     # main panel
@@ -241,6 +424,12 @@ def draw(screen, player_inventory):
         17
     )
 
+    button_font = pygame.font.SysFont(
+        "arial",
+        16,
+        bold=True
+    )
+
     # inventory title
     inventory_title = title_font.render(
         "Inventory",
@@ -257,40 +446,6 @@ def draw(screen, player_inventory):
         inventory_title_rect
     )
 
-  
-    # catagory layout
-    section_top = panel_rect.y + 85
-    section_bottom_margin = 25
-    section_gap = 20
-
-    section_height = (
-        panel_rect.bottom
-        - section_top
-        - section_bottom_margin
-    )
-
-    section_width = (
-        panel_width
-        - 60
-        - section_gap
-    ) // 2
-
-    # components on left
-    components_rect = pygame.Rect(
-        panel_rect.x + 30,
-        section_top,
-        section_width,
-        section_height
-    )
-
-    # machines on right
-    machines_rect = pygame.Rect(
-        components_rect.right + section_gap,
-        section_top,
-        section_width,
-        section_height
-    )
-
     # draw components section
     draw_category_section(
         screen,
@@ -301,7 +456,8 @@ def draw(screen, player_inventory):
         section_title_font,
         item_font,
         quantity_font,
-        small_font
+        small_font,
+        button_font
     )
 
     # draw machines section
@@ -314,5 +470,6 @@ def draw(screen, player_inventory):
         section_title_font,
         item_font,
         quantity_font,
-        small_font
+        small_font,
+        button_font
     )

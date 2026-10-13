@@ -8,6 +8,7 @@ import resource_nodes
 from inventory import Inventory
 import inventory_ui
 import character
+import machine_placement
 
 # set constants and variables
 # size of each tile in pixels
@@ -104,11 +105,21 @@ def start(screen, world_seed, world_name):
     player_inventory.add_item("miner", 2)
     player_inventory.add_item("assembler", 1)
 
+    #temporary machine placement data
+    #later this can be loaded/saved through the save system
+    placed_machines = {}
+
+    #tracks the machine currently being placed and its orientation
+    placement_state = machine_placement.MachinePlacementState()
+
     #tracks if inventory is open
     inventory_open = False
 
     #get screen size
     screen_width, screen_height = screen.get_size()
+
+    #temporary placement instruction font
+    placement_font = pygame.font.SysFont("arial", 18)
 
     #"camera"
     #camera follows character
@@ -128,13 +139,26 @@ def start(screen, world_seed, world_name):
             #keybord input
             elif event.type == pygame.KEYDOWN:
 
+                #rotate the selected machine while placement mode is active
+                if event.key == pygame.K_r and placement_state.active:
+                    placement_state.rotate()
+                    print(
+                        "Machine orientation:",
+                        machine_placement.get_orientation_name(
+                            placement_state.orientation
+                        )
+                    )
+
                 #open/close inventory
-                if event.key == pygame.K_i:
+                elif event.key == pygame.K_i and not placement_state.active:
                     inventory_open = not inventory_open
 
-                #esc to leave world(temporary)
+                #ESC cancels placement first, then closes inventory, then leaves world
                 elif event.key == pygame.K_ESCAPE:
-                    if inventory_open:
+                    if placement_state.active:
+                        placement_state.cancel()
+                        print("Machine placement cancelled.")
+                    elif inventory_open:
                         inventory_open = False
                     else:
                         running = False
@@ -157,6 +181,122 @@ def start(screen, world_seed, world_name):
                     #right
                     elif event.key in (pygame.K_d, pygame.K_RIGHT):
                         character.move(1, 0, WORLD_RADIUS)
+
+            #mouse input
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+
+                #inventory clicks
+                if inventory_open and not placement_state.active:
+
+                    #only left click can press inventory buttons
+                    if event.button == 1:
+                        selected_machine = inventory_ui.handle_click(
+                            screen,
+                            event.pos,
+                            player_inventory
+                        )
+
+                        #a machine Place button was clicked
+                        if selected_machine is not None:
+
+                            #make sure the player still owns at least one
+                            if not player_inventory.has_item(
+                                selected_machine,
+                                1
+                            ):
+                                print(
+                                    f"No {selected_machine} available in inventory."
+                                )
+
+                            #start placement only if that machine has a
+                            #definition in Machines.json
+                            elif placement_state.start(
+                                selected_machine
+                            ):
+                                inventory_open = False
+
+                                print(
+                                    f"{selected_machine} placement mode started. "
+                                    "R rotates, left click places, "
+                                    "ESC/right click cancels."
+                                )
+
+                            else:
+                                print(
+                                    f"Machine '{selected_machine}' does not "
+                                    "have a placement definition yet."
+                                )
+
+                #world clicks while placing a machine
+                elif placement_state.active:
+
+                    #right click cancels placement
+                    if event.button == 3:
+                        placement_state.cancel()
+                        print("Machine placement cancelled.")
+
+                    #left click attempts to place the selected machine
+                    elif event.button == 1:
+                        mouse_x, mouse_y = event.pos
+
+                        grid_x, grid_y = machine_placement.screen_to_world(
+                            mouse_x,
+                            mouse_y,
+                            camera_x,
+                            camera_y,
+                            screen_width,
+                            screen_height,
+                            PIXEL_SIZE
+                        )
+
+                        selected_machine = (
+                            placement_state.selected_machine_id
+                        )
+
+                        #make sure the player still owns the selected machine
+                        if not player_inventory.has_item(
+                            selected_machine,
+                            1
+                        ):
+                            print(
+                                f"No {selected_machine} available in inventory."
+                            )
+                            placement_state.cancel()
+
+                        else:
+                            success, message, placed_data = (
+                                machine_placement.handle_build_click(
+                                    selected_machine,
+                                    grid_x,
+                                    grid_y,
+                                    placement_state.orientation,
+                                    resource_nodes_data,
+                                    placed_machines,
+                                    WORLD_RADIUS
+                                )
+                            )
+
+                            print(message)
+
+                            if success:
+                                #store the placed machine in the world
+                                placed_machines[
+                                    (grid_x, grid_y)
+                                ] = placed_data
+
+                                #remove exactly one machine from inventory
+                                player_inventory.remove_item(
+                                    selected_machine,
+                                    1
+                                )
+
+                                #if no more of this machine remain,
+                                #exit placement mode
+                                if not player_inventory.has_item(
+                                    selected_machine,
+                                    1
+                                ):
+                                    placement_state.cancel()
 
         #camera follows character
         camera_x = character.grid_x
@@ -221,6 +361,17 @@ def start(screen, world_seed, world_name):
             PIXEL_SIZE
         )
 
+        #draw machines that have already been placed
+        machine_placement.draw_placed_machines(
+            screen,
+            placed_machines,
+            camera_x,
+            camera_y,
+            screen_width,
+            screen_height,
+            PIXEL_SIZE
+        )
+
         #draw character on top of world
         character_screen_x = screen_width // 2
         character_screen_y = screen_height // 2
@@ -231,6 +382,78 @@ def start(screen, world_seed, world_name):
             character_screen_y,
             PIXEL_SIZE
         )
+
+        #draw placement preview under the mouse while placement mode is active
+        if placement_state.active:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            preview_grid_x, preview_grid_y = (
+                machine_placement.screen_to_world(
+                    mouse_x,
+                    mouse_y,
+                    camera_x,
+                    camera_y,
+                    screen_width,
+                    screen_height,
+                    PIXEL_SIZE
+                )
+            )
+
+            can_place, placement_reason = (
+                machine_placement.can_place_machine(
+                    placement_state.selected_machine_id,
+                    preview_grid_x,
+                    preview_grid_y,
+                    resource_nodes_data,
+                    placed_machines,
+                    WORLD_RADIUS
+                )
+            )
+
+            machine_placement.draw_placement_preview(
+                screen,
+                placement_state.selected_machine_id,
+                preview_grid_x,
+                preview_grid_y,
+                placement_state.orientation,
+                can_place,
+                camera_x,
+                camera_y,
+                screen_width,
+                screen_height,
+                PIXEL_SIZE
+            )
+
+            #temporary placement instructions
+            placement_text = (
+                f"Placing: {placement_state.selected_machine_id} | "
+                f"Facing: {machine_placement.get_orientation_name(placement_state.orientation)} | "
+                f"R = rotate | Left click = place | ESC/right click = cancel"
+            )
+
+            placement_surface = placement_font.render(
+                placement_text,
+                True,
+                (255, 255, 255)
+            )
+
+            screen.blit(
+                placement_surface,
+                (15, 15)
+            )
+
+            #show why the current tile is invalid
+            if not can_place:
+                reason_surface = placement_font.render(
+                    placement_reason,
+                    True,
+                    (255, 120, 120)
+                )
+
+                screen.blit(
+                    reason_surface,
+                    (15, 40)
+                )
 
         #draw inventory if open
         if inventory_open:
