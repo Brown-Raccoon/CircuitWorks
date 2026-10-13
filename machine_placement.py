@@ -5,7 +5,7 @@ import pygame
 
 
 # MACHINE DEFINITIONS
-MACHINE_FILE = Path(__file__).with_name("Machines.json")
+MACHINE_FILE = Path(__file__).parent / "machine design idea folder" / "Machines.json"
 
 
 def load_all_machines():
