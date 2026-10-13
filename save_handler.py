@@ -1,7 +1,7 @@
 #imports 
 import json
 
-from networkx import nodes
+#from networkx import nodes
 import world_generation
 import resource_nodes
 from pathlib import Path
@@ -204,7 +204,7 @@ def create_character_file(save, name):
         "name" : f"{name}",
         "color" : [255, 255, 255],
         "Pos" : [0, 0],
-        "inventory" : [],
+        "inventory" : {},
         "version" : VERSION,
         "last_saved" : 0.0
     }]

@@ -57,7 +57,7 @@ def start(screen, anchor_rect):
     button_font = pygame.font.SysFont("arial", 26)
 
     #panel pos - wider/taller than before to fit the sprite selection row
-    panel_rect = pygame.Rect(anchor_rect.right + 20, anchor_rect.top, 340, 490)
+    panel_rect = pygame.Rect(anchor_rect.right + 20, anchor_rect.top - 300, 340, 490)
 
     #preview window
     preview_rect = pygame.Rect(panel_rect.x + 20, panel_rect.y + 20, 70, 70)
