@@ -1,5 +1,6 @@
 #imports 
 import json
+from xml.dom.minidom import Node
 
 from networkx import nodes
 import world_generation
@@ -49,6 +50,7 @@ def create_node_save(path, nodes):
     #create node save file
     create_file(Path(f"{path}.nodes.json"))
 
+    #create node list
     node_list = [
         {"x": x, "y": y, **node}
         for (x, y), node in nodes.items()
@@ -64,6 +66,7 @@ def create_node_save(path, nodes):
 ## Output ========
 # Node list (Node data)
 def load_node_save(path):
+
     #open node save file and read data
     with open(f"{path}.nodes.json", "r", encoding="utf-8") as file:
         node_list = json.load(file)
@@ -72,13 +75,28 @@ def load_node_save(path):
     nodes = {}
     for node in node_list:
         nodes[(node["x"], node["y"])] = {
-            "id": node["id"],
+        
+            # Resource type
+            "resource": node["resource"],
+
+            # Display name
             "name": node["name"],
-            "concentration": node["concentration"]
+        
+            # Identifier for the resource type
+            "id": node["id"],
+        
+            # Low / Medium / High
+            "concentration": node["concentration"],
+        
+            # How much can be extracted per second
+            "resource_per_second": node["resource_per_second"],
+        
+            # How much resource remains in the node
+            "resources_remaining": node["resources_remaining"]
         }
     
     #return node data
-    return node_list
+    return nodes
 
 ### Save Node save data
 ## Input =========
@@ -178,13 +196,29 @@ def get_world(path, radius):
 # World radius 
 ## Output ========
 # N/A
-def save_world(path, world, radius):
+def save_world(path, world, nodes, radius, size):
 
+    #open world file and write data
     with open(f"{path}.dat", "r+b") as file:
         file.seek(0x30)
         for x in range(-radius, radius + 1):
             for y in range(-radius, radius + 1):
                 file.write(int(world[(x,y)]).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
+
+        #write resource nodes to save
+        file.seek(0x30 + ((size * TILE_LENGTH * NODELAYER)))
+        for x in range(-radius, radius + 1):
+            for y in range(-radius, radius + 1):
+
+                #get resource node if it exists
+                if(nodes.get((x,y))):
+                    resource_node_temp = nodes[(x,y)]
+                    resource_node = resource_node_temp["id"]
+                else:
+                    resource_node = 0
+
+                #write resource node to save
+                file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
 
 ###
 

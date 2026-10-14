@@ -12,7 +12,7 @@ PIXEL_SIZE = 32
 #number of tiles from center in a direction
 WORLD_RADIUS = 20
 #total number of tiles in world
-WORLD_SIZE = WORLD_RADIUS * 2 + 1
+WORLD_SIZE = (WORLD_RADIUS ** 2)* 4 + 1
 
 # json file pathing
 tile_file = Path(__file__).with_name("tile_type_assignment.json")
@@ -73,15 +73,29 @@ def generate_world(world_seed):
     #return the generated world and seed
     return world, world_seed
 
-def start(screen, world_seed, world_name):
+def start(screen, world_seed, world_name, load):
 
-    #create save file
-    save_path = save_handler.create_save_file(world_name)
+    if load:
+        #load world from save
+        save_path = world_name
+
+        #load world and resource nodes from save
+        world = save_handler.get_world(save_path, WORLD_RADIUS)
+        resource_nodes_data = save_handler.load_node_save(save_path)
+
+    else:
+        #generate world
+        world, world_seed = generate_world(world_seed)
+
+        #create save file
+        save_path = save_handler.create_save_file(world_name)
     
-    print(f"save file created at: {save_path}\n")
-    #send to generate world
-    world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
-
+        print(f"save file created at: {save_path}\n")
+        #send to generate world
+        world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
+    
+    print(f"nodes :\n{resource_nodes_data}\n")
+    
     #get screen size
     screen_width, screen_height = screen.get_size()
 
