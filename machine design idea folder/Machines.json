@@ -1,5 +1,6 @@
 {
     "miner": {
+        "tile_id": 1,
         "name": "miner",
         "canvas_size": 64,
         "tile_size": 32,

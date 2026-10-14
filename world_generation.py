@@ -79,19 +79,6 @@ def generate_world(world_seed):
 
 def start(screen, world_seed, world_name, load):
 
-    #create save file
-    save_path = save_handler.create_save_file(world_name)
-
-    print(f"save file created at: {save_path}\n")
-
-    #send to generate world
-    world, resource_nodes_data, world_seed = save_handler.create_world_file(
-        save_path,
-        world_seed,
-        WORLD_SIZE,
-        WORLD_RADIUS
-    )
-
     #place character at center of world
     character.spawn_at_center()
 
@@ -102,7 +89,7 @@ def start(screen, world_seed, world_name, load):
     player_inventory.add_item("copper_wire", 10)
     player_inventory.add_item("resistor", 5)
     player_inventory.add_item("circuit_board", 3)
-    player_inventory.add_item("miner", 2)
+    player_inventory.add_item("miner", 3)
     player_inventory.add_item("assembler", 1)
 
     #temporary machine placement data
@@ -120,20 +107,33 @@ def start(screen, world_seed, world_name, load):
 
         #load world and resource nodes from save
         world = save_handler.get_world(save_path, WORLD_RADIUS)
-        resource_nodes_data = save_handler.load_node_save(save_path)
+        resource_nodes_data = save_handler.load_nodes(save_path)
+
+        #load character data from save
+        character_data = save_handler.load_character(save_path)
+
+        placed_machines = save_handler.load_entity(save_path)
+
+        #update character position from save data
+        character.grid_x = character_data["Pos"][0]
+        character.grid_y = character_data["Pos"][1]
 
     else:
-        #generate world
-        world, world_seed = generate_world(world_seed)
-
         #create save file
         save_path = save_handler.create_save_file(world_name)
-    
-        print(f"save file created at: {save_path}\n")
+
+        #create character save file
+        save_handler.create_character_file(save_path, 
+            character.grid_x, 
+            character.grid_y, 
+            player_inventory)
+        
         #send to generate world
-        world, resource_nodes_data, world_seed = save_handler.create_world_file(save_path, world_seed, WORLD_SIZE, WORLD_RADIUS)
-    
-    print(f"nodes :\n{resource_nodes_data}\n")
+        world, resource_nodes_data, world_seed = save_handler.create_world_file(
+            save_path, 
+            world_seed, 
+            WORLD_SIZE, 
+            WORLD_RADIUS)
     
     #get screen size
     screen_width, screen_height = screen.get_size()
@@ -154,6 +154,28 @@ def start(screen, world_seed, world_name, load):
         for event in pygame.event.get():
             #allow window to close
             if event.type == pygame.QUIT:
+                
+                #Save world and resource nodes to save file before exiting
+
+                inv_temp = player_inventory.to_dict()
+                character_data = {
+                    "Pos" : [character.grid_x, character.grid_y],
+                    "inventory" : inv_temp
+                }
+
+
+                save_handler.save_world(
+                    save_path, 
+                    world,
+                    resource_nodes_data, 
+                    WORLD_RADIUS, 
+                    WORLD_SIZE)
+                save_handler.save_nodes(save_path, resource_nodes_data)
+                save_handler.save_character(save_path, character_data)
+                save_handler.save_entitys(save_path, placed_machines)
+
+
+
                 running = False
 
             #keybord input
@@ -181,6 +203,27 @@ def start(screen, world_seed, world_name, load):
                     elif inventory_open:
                         inventory_open = False
                     else:
+                        #Save world and resource nodes to save file before exiting
+                        inv_temp = player_inventory.to_dict()
+                        character_data = {
+                            "Pos" : [character.grid_x, character.grid_y],
+                            "inventory" : inv_temp
+                        }
+                        
+                        save_handler.save_world(
+                            save_path, 
+                            world, 
+                            resource_nodes_data, 
+                            WORLD_RADIUS, 
+                            WORLD_SIZE)
+                        
+                        save_handler.save_nodes(save_path, resource_nodes_data)
+                        save_handler.save_character(save_path, character_data)
+
+                        print("entities saved: ", placed_machines)
+
+                        save_handler.save_entitys(save_path, placed_machines)
+
                         running = False
 
                 #movement only works while inventory is closed
