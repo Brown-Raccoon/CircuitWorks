@@ -9,16 +9,17 @@ from pathlib import Path
 
 TILE_LENGTH = 2
 NODELAYER = 2
-VERSION = "0.3.3"
+VERSION = "0.4.3"
 SAVE_PATH = Path(__file__).with_name("saves")
 
 #### Save Handler
 
-### Create File
-## Input =========
-# Path path (Path to file)
-## Output ========
-# success bool (True if file created successfully, False otherwise)
+""" Create File
+    Input =========
+    Path path (Path to file)
+    Output ========
+    success bool (True if file created successfully, False otherwise)
+"""
 def create_file(path):
 
     bool = False
@@ -38,17 +39,88 @@ def create_file(path):
     #return success
     return bool
 
+""" Create tile entity save data
+    Input =========
+    Path path (Path to save file)
+    Entity list (Entity data)
+    Output ========
+    N/A
+"""
+def create_entity_file(path, entities):
 
-### Create Node save data
-## Input =========
-# Path path (Path to save file)
-# Node list (Node data)
-## Output ========
-# N/A
-def create_node_save(path, nodes):
+    #create entity save file
+    create_file(Path(f"{path}.entities"))
+
+    #create entity list
+    entity_list = [
+        {"x": x, "y": y, **entity}
+        for (x, y), entity in entities.items()
+        ]
+
+    #write entity data to file
+    with open(f"{path}.entities", "w", encoding="utf-8") as file:
+        json.dump(entity_list, file, indent=4)
+
+""" Load tile entity save data
+    Input =========
+    Path path (Path to save file)
+    Output ========
+    Entity list (Entity data)
+"""
+def load_entity(path):
+
+    #open entity save file and read data
+    with open(f"{path}.entities", "r", encoding="utf-8") as file:
+        entity_list = json.load(file)
+
+    #create entity data dictionary
+    entities = {}
+    for entity in entity_list:
+        entities[(entity["x"], entity["y"])] = {
+        
+            # Entity type
+            "machine_id": entity["machine_id"],
+        
+            # Display name
+            "orientation": entity["orientation"],
+        
+            # Identifier for the entity type
+            "orientation_name": entity["orientation_name"],
+        }
+    
+    #return entity data
+    return entities
+
+""" Save tile entity save data
+    Input =========
+    Path path (Path to save file)
+    Entity list (Entity data)
+    Output ========
+    N/A
+"""
+def save_entitys(path, entities):
+    #create entity list
+    entity_list = [
+        {"x": x, "y": y, **entity}
+        for (x, y), entity in entities.items()
+    ]
+
+    #open entity save file and write data
+    with open(f"{path}.entities", "w", encoding="utf-8") as file:
+        json.dump(entity_list, file, indent=4)
+        print("entity save saved succesfully\n")
+
+""" Create Node save data
+    Input =========
+    Path path (Path to save file)
+    Node list (Node data)
+    Output ========
+    N/A
+"""
+def create_node_file(path, nodes):
 
     #create node save file
-    create_file(Path(f"{path}.nodes.json"))
+    create_file(Path(f"{path}.nodes"))
 
     #create node list
     node_list = [
@@ -57,18 +129,19 @@ def create_node_save(path, nodes):
         ]
 
     #write node data to file
-    with open(f"{path}.nodes.json", "w", encoding="utf-8") as file:
+    with open(f"{path}.nodes", "w", encoding="utf-8") as file:
         json.dump(node_list, file, indent=4)
 
-### Load Node save data
-## Input =========
-# Path path (Path to save file)
-## Output ========
-# Node list (Node data)
-def load_node_save(path):
+""" Load Node save data
+    Input =========
+    Path path (Path to save file)
+    Output ========
+    Node list (Node data)
+"""
+def load_nodes(path):
 
     #open node save file and read data
-    with open(f"{path}.nodes.json", "r", encoding="utf-8") as file:
+    with open(f"{path}.nodes", "r", encoding="utf-8") as file:
         node_list = json.load(file)
 
     #create node data dictionary
@@ -98,27 +171,34 @@ def load_node_save(path):
     #return node data
     return nodes
 
-### Save Node save data
-## Input =========
-# Path path (Path to save file)
-# Node list (Node data)
-## Output ========
-# N/A
-def save_node_save(path, nodes):
+""" Save Node save data
+    Input =========
+    Path path (Path to save file)
+    Node list (Node data)
+    Output ========
+    N/A
+"""
+def save_nodes(path, nodes):
+    node_list = [
+        {"x": x, "y": y, **node}
+        for (x, y), node in nodes.items()
+    ]
+
     #open node save file and write data
-    with open(f"{path}.nodes.json", "w", encoding="utf-8") as file:
-        json.dump(nodes, file, indent=4)
+    with open(f"{path}.nodes", "w", encoding="utf-8") as file:
+        json.dump(node_list, file, indent=4)
         print("node save saved succesfully\n")
 
-### Create World
-## Input =========
-# Path path (Path to save file)
-# Seed int
-# World Size
-# World radius 
-## Output ========
-# World list
-# Seed int
+""" Create World
+    Input =========
+    Path path (Path to save file)
+    Seed int
+    World Size
+    World radius 
+    Output ========
+    World list
+    Seed int
+"""
 def create_world_file(path, seed, size, radius):
 
     #create world file
@@ -159,17 +239,18 @@ def create_world_file(path, seed, size, radius):
                 file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
 
     #create node save file
-    create_node_save(path, nodes)
+    create_node_file(path, nodes)
 
     #return world and seed
     return world, nodes, seed
 
-### Get World
-## Input =========
-# Path path (Path to save file)
-# World radius int 
-## Output ========
-# World list
+""" Get World
+    Input =========
+    Path path (Path to save file)
+    World radius int 
+    Output ========
+    World list
+"""
 def get_world(path, radius):
 
     #make return variable
@@ -189,13 +270,14 @@ def get_world(path, radius):
     # return world
     return world
 
-### World Save
-## Input =========
-# Path path (Path to save file)
-# World list
-# World radius 
-## Output ========
-# N/A
+"""World Save
+    Input =========
+    Path path (Path to save file)
+    World list
+    World radius 
+    Output ========
+    N/A
+"""
 def save_world(path, world, nodes, radius, size):
 
     #open world file and write data
@@ -220,69 +302,69 @@ def save_world(path, world, nodes, radius, size):
                 #write resource node to save
                 file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
 
-###
-
-### Create Character File
-## Input =========
-# Path path (Path to save file)
-# Name str (Character Name)
-## Output ========
-# Character list (Character data)
-def create_character_file(save, name):
+""" Create Character File
+    Input =========
+    Path path (Path to save file)
+    Name str (Character Name)
+    Output ========
+    Character list (Character data)
+"""
+def create_character_file(save, posx, posy, inventory):
 
     #create character file
-    create_file(Path(f"{save}.player.json"))
+    create_file(Path(f"{save}.player"))
 
     #create character data
     data = [{
-        "name" : f"{name}",
-        "color" : [255, 255, 255],
-        "Pos" : [0, 0],
+        "Pos" : [posx, posy],
         "inventory" : {},
         "version" : VERSION,
         "last_saved" : 0.0
     }]
 
     #write character data to file
-    with open(f"{save}.player.json", "w", encoding="utf-8") as file:
+    with open(f"{save}.player", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
     #return character data
     return data
 
-### Load Character File
-## Input =========
-# CharacterP (Path to character file)
-# Character list (Character data)
-## Output ========
-# N/A
-def load_character_file(characterP, characters):
+""" Load Character File
+    Input =========
+    CharacterP (Path to character file)
+    Character list (Character data)
+    Output ========
+    N/A
+"""
+def load_character(path):
 
     #open character file and read data
-    with open(characterP, "r", encoding="utf-8") as file:
+    with open(f"{path}.player", "r", encoding="utf-8") as file:
         data = json.load(file)
 
     #update character data
-    characters.update(data)
+    return data
 
-### Save Character File
-## Input =========
-# CharacterP (Path to character file)
-# Characters list (Character data)
-## Output ========
-# N/A
-def save_character_file(characterP, characters):
+""" Save Character File
+    Input =========
+    CharacterP (Path to character file)
+    Characters list (Character data)
+    Output ========
+    N/A
+"""
+def save_character(path, characters):
 
     #open character file and write data
-    with open(characterP, "w", encoding="utf-8") as file:
+    with open(f"{path}.player", "w", encoding="utf-8") as file:
         json.dump(characters, file, indent=4)
         print("character saved succesfully\n")
 
-### Create Save File
-## Input =========
-# Name str (Save Name)
-## Output ========
-# Name str (Path to save file)
+""" Create Save File
+    Input =========
+    Name str (Save Name)
+    Output ========
+    Name str (Path to save file)
+"""
 def create_save_file(name):
 
     # store save name
@@ -292,9 +374,9 @@ def create_save_file(name):
     data = {
         "name" : f"{sName}",
         "world" : f"{sName}.dat",
-        "none" : f"{sName}.nodes.json",
-        "entities" : f"{sName}.entities.json",
-        "players" : f"{sName}.players.json",
+        "none" : f"{sName}.nodes",
+        "entities" : f"{sName}.entities",
+        "players" : f"{sName}.players",
         "version" : VERSION,
         "last_saved" : 0.0
     }
@@ -315,12 +397,13 @@ def create_save_file(name):
     #return path name
     return file_path
 
-### Load Save File
-## Input =========
-# Path str (Path to save file)
-## Output ========
-# Data dict (Save file data)
-def load_save_file(path):
+""" Load Save File
+    Input =========
+    Path str (Path to save file)
+    Output ========
+    Data dict (Save file data)
+"""
+def load_save(path):
 
     # open save file and read data
     with open(f"{path}.sav", "r", encoding="utf-8") as file:
@@ -329,22 +412,28 @@ def load_save_file(path):
     # return save file data
     return data
 
-### Save Save File
-## Input =========
-# Path str (Path to save file)
-# Data dict (Save file data)
-def save_save_file(path, data):
+""" Save Save File
+    Input =========
+    Path str (Path to save file)
+    Data dict (Save file data)
+    Output ========
+    N/A
+"""
+def save_save(path, data):
 
     # open save file and write data
     with open(f"{path}.sav", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
         print("save file saved succesfully\n")
 
-### List Saves
-## Input =========
-# n/a
-## Output ========
-# Path list (List of save file paths)
+""" List Saves
+    Input =========
+    N/A
+    Output ========
+    Path list (List of save file paths)
+    Output ========
+    Path list (List of save file paths)
+"""
 def list_saves():
     path_list = []
     for file in Path(SAVE_PATH).glob("**/*.sav"):
