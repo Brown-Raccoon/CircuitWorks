@@ -1,0 +1,39 @@
+{
+    "items": {
+        "copper_wire": {
+            "id": 1,
+            "name": "Copper Wire",
+            "category": "component",
+            "stack_size": 100,
+            "description": "A basic conductive component used in electrical crafting."
+        },
+        "resistor": {
+            "id": 2,
+            "name": "Resistor",
+            "category": "component",
+            "stack_size": 100,
+            "description": "A basic circuit component used to control electrical current."
+        },
+        "circuit_board": {
+            "id": 3,
+            "name": "Circuit Board",
+            "category": "component",
+            "stack_size": 50,
+            "description": "A crafted component used in more advanced machines."
+        },
+        "miner": {
+            "id": 4,
+            "name": "Miner",
+            "category": "machine",
+            "stack_size": 10,
+            "description": "A machine used to extract resources from resource nodes."
+        },
+        "assembler": {
+            "id": 5,
+            "name": "Assembler",
+            "category": "machine",
+            "stack_size": 10,
+            "description": "A machine used to craft components and other items."
+        }
+    }
+}
