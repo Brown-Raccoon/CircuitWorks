@@ -1,3 +1,4 @@
+
 {
     "items": {
         "copper_wire": {
@@ -34,6 +35,13 @@
             "category": "machine",
             "stack_size": 10,
             "description": "A machine used to craft components and other items."
+        },
+        "conveyor": {
+            "id": 6,
+            "name": "Conveyor Belt",
+            "category": "machine",
+            "stack_size": 100,
+            "description": "Transports resources between machines."
         }
     }
 }

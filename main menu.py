@@ -141,6 +141,7 @@ while running == True:
                 #if click create character button
                 if create_character_rect.collidepoint(mouse_pos):
                     character_creator.start(screen, create_character_rect)
+                    draw_start()
 
     #game logic
 
