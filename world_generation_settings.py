@@ -1,7 +1,8 @@
 #imports
 import pygame
-#import file for next step(temp world generation)maybe character 
 import world_generation
+from pathlib import Path
+
 #variables/Constants
 #world information
 world_name = ""
@@ -153,7 +154,7 @@ def start(screen):
                     #click to move onto next step
                     elif next_rect.collidepoint(event.pos):
                         #call next step here
-                        world_generation.start(screen, world_seed)
+                        world_generation.start(screen, world_seed, world_name, False)
 
                     #click somewhere else deactive boxes 
                     else:

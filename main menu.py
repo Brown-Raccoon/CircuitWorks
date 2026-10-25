@@ -1,15 +1,21 @@
 #imports
 #pygame
 import pygame
+from sympy import false
 #world generation
 import world_generation_settings
+#character creator
+import character_creator
+import world_load_settings
 
 #variables
 #main game running variable
 running = True
 
 #color constants
-BLACK = (0, 0, 0)
+
+STEEL = (55, 59, 64)
+BLACK = (0,0,0)
 RED = (255, 0, 0)
 LIGHT_RED = (255, 102, 102)
 WHITE = (255, 255, 255)
@@ -25,21 +31,28 @@ pygame.init()
 screen = pygame.display.set_mode((0,0),pygame.NOFRAME)
 screen_width, screen_height = screen.get_size()
 
+#screen_width = 1280
+#screen_height = 720
+
 #set up display screen
 #fontsizes
-title_font = pygame.font.SysFont("arial", 64, bold=True)
-button_font = pygame.font.SysFont("arial", 32)
+title_font = pygame.font.SysFont("arial", 192, bold=True)
+button_font = pygame.font.SysFont("arial", 64)
+
+#######Custom Font
+#custom_font = pygame.font.Font("determination.ttf", 45)
+#title_font = pygame.font.SysFont(custom_font, 192, bold=True)
 
 #create Buttons
-btn_w, btn_h = 240,50
-#center buttons horizontally
-btn_x = (screen_width - btn_w)//2
+btn_w, btn_h = 280,80
+#center buttons to the right side of the screen
+btn_x = (screen_width - btn_w) - 100
 
 #vertical spaceing of buttons
-start_y = 300
-load_y = 380
-settings_y = 460
-quit_y = 540
+start_y = 440
+load_y = 550
+settings_y = 660
+quit_y = 770
 
 #create button interactions
 start_rect = pygame.Rect(btn_x, start_y, btn_w, btn_h)
@@ -47,9 +60,60 @@ load_rect = pygame.Rect(btn_x, load_y, btn_w, btn_h)
 settings_rect = pygame.Rect(btn_x, settings_y, btn_w, btn_h)
 quit_rect = pygame.Rect(btn_x, quit_y, btn_w, btn_h)
 
+background_image = pygame.image.load("G-Sugar_Beet.jpg").convert()
+background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
+#create character button wider than the others so the label fits
+cc_w, cc_h = 280, 50
+cc_x = (screen_width - cc_w)//2
+cc_y = quit_y + 80
+create_character_rect = pygame.Rect(cc_x, cc_y, cc_w, cc_h)
+
+#track hover state of buttons
+start_hover = False
+load_hover = False
+settings_hover = False
+quit_hover = False
+
+def draw_start():
+    #draw screen
+    screen.blit(background_image, (0, 0))
+
+    #draw buttons 
+    pygame.draw.rect(screen, DARK_GRAY, start_rect)
+    start_text = button_font.render("Start", True, GRAY)
+    pygame.draw.rect(screen, DARK_GRAY, load_rect)
+    load_text = button_font.render("Load", True, GRAY)
+    pygame.draw.rect(screen, DARK_GRAY, settings_rect)
+    settings_text = button_font.render("Settings", True, GRAY)
+    pygame.draw.rect(screen, RED, quit_rect)
+    quit_text = button_font.render("Quit Game", True, GRAY)
+
+    #draw title
+    title_surface = title_font.render("CircuitWorks", True, STEEL)
+    title_rect = title_surface.get_rect(center = (screen_width //2, 150))
+    screen.blit(title_surface, title_rect)
+
+#draw screen
+screen.blit(background_image, (0, 0))
+
+#draw buttons 
+pygame.draw.rect(screen, DARK_GRAY, start_rect)
+start_text = button_font.render("Start", True, GRAY)
+pygame.draw.rect(screen, DARK_GRAY, load_rect)
+load_text = button_font.render("Load", True, GRAY)
+pygame.draw.rect(screen, DARK_GRAY, settings_rect)
+settings_text = button_font.render("Settings", True, GRAY)
+pygame.draw.rect(screen, RED, quit_rect)
+quit_text = button_font.render("Quit Game", True, GRAY)
+
+#draw title
+title_surface = title_font.render("CircuitWorks", True, STEEL)
+title_rect = title_surface.get_rect(center = (screen_width //2, 150))
+screen.blit(title_surface, title_rect)
 
 #mainloop
 while running == True:
+
     #track mouse
     mouse_pos = pygame.mouse.get_pos()
 
@@ -64,20 +128,25 @@ while running == True:
                 #if click start button
                 if start_rect.collidepoint(mouse_pos):
                     world_generation_settings.start(screen)
+                    draw_start()
+
+                if load_rect.collidepoint(mouse_pos):
+                    world_load_settings.start(screen)
+                    draw_start()
 
                 #if click quit button
                 if quit_rect.collidepoint(mouse_pos):
                     running = False
 
+                #if click create character button
+                if create_character_rect.collidepoint(mouse_pos):
+                    character_creator.start(screen, create_character_rect)
+
     #game logic
 
     #draw screen
-    screen.fill(CHARCOAL)
+    #screen.fill(BLACK)
 
-    #draw title
-    title_surface = title_font.render("CircuitWorks", True, WHITE)
-    title_rect = title_surface.get_rect(center = (screen_width //2, 150))
-    screen.blit(title_surface, title_rect)
 
     #draw buttons
     #start
@@ -85,36 +154,68 @@ while running == True:
     if start_rect.collidepoint(mouse_pos):
         # Brighter when hovered
         pygame.draw.rect(screen, BLUE, start_rect)
-        # Change Text Color to White
+        # Change text color to White
         start_text = button_font.render("Start", True, WHITE)
+        start_hover = True
     #otherwise normal color
-    else:
+    elif start_hover:
         pygame.draw.rect(screen, DARK_GRAY, start_rect)
         start_text = button_font.render("Start", True, GRAY)
+        start_hover = False
     screen.blit(start_text, start_text.get_rect(center=start_rect.center))
 
+
+
     #load
-    pygame.draw.rect(screen, DARK_GRAY, load_rect)
-    load_text = button_font.render("Load", True, GRAY)
+    if load_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, BLUE, load_rect)
+        load_text = button_font.render("Load", True, WHITE)
+        load_hover = True
+    elif load_hover:
+        pygame.draw.rect(screen, DARK_GRAY, load_rect)
+        load_text = button_font.render("Load", True, GRAY)
+        load_hover = False
     screen.blit(load_text, load_text.get_rect(center=load_rect.center))
 
     #settings
-    pygame.draw.rect(screen, DARK_GRAY, settings_rect)
-    settings_text = button_font.render("Settings", True, GRAY)
+    if settings_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, BLUE, settings_rect)
+        settings_text = button_font.render("Settings", True, WHITE)
+        settings_hover = True
+    elif settings_hover:
+        pygame.draw.rect(screen, DARK_GRAY, settings_rect)
+        settings_text = button_font.render("Settings", True, GRAY)
+        settings_hover = False
     screen.blit(settings_text, settings_text.get_rect(center=settings_rect.center))
 
     #Quit
     #if hover over quit button
     if quit_rect.collidepoint(mouse_pos):
+            # Brighter when hovered
+            pygame.draw.rect(screen, LIGHT_RED, quit_rect)
+            # Change text color to White
+            quit_text = button_font.render("Quit Game", True, WHITE)
+            quit_hover = True
+            
+        #otherwise normal color
+    elif quit_hover:
+            pygame.draw.rect(screen, RED, quit_rect)
+            quit_text = button_font.render("Quit Game", True, GRAY)
+            quit_hover = False
+            
+    screen.blit(quit_text, quit_text.get_rect(center=quit_rect.center))
+
+    #Create Character
+    #if hover over create character button
+    if create_character_rect.collidepoint(mouse_pos):
         # Brighter when hovered
-        pygame.draw.rect(screen, LIGHT_RED, quit_rect)
+        pygame.draw.rect(screen, BLUE, create_character_rect)
+        create_character_text = button_font.render("Create Character", True, WHITE)
     #otherwise normal color
     else:
-        pygame.draw.rect(screen, RED, quit_rect)
-    #button display
-    quit_text = button_font.render("Quit Game", True, WHITE)
-    screen.blit(quit_text, quit_text.get_rect(center=quit_rect.center))
+        pygame.draw.rect(screen, DARK_GRAY, create_character_rect)
+        create_character_text = button_font.render("Create Character", True, GRAY)
+    screen.blit(create_character_text, create_character_text.get_rect(center=create_character_rect.center))
 
     #update display
     pygame.display.flip()
-

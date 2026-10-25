@@ -2,7 +2,13 @@
 import pygame
 import random
 import json
-from  pathlib import Path
+from pathlib import Path
+import save_handler
+import resource_nodes
+from inventory import Inventory
+import inventory_ui
+import character
+import machine_placement
 
 # set constants and variables
 # size of each tile in pixels
@@ -10,7 +16,7 @@ PIXEL_SIZE = 32
 #number of tiles from center in a direction
 WORLD_RADIUS = 20
 #total number of tiles in world
-WORLD_SIZE = WORLD_RADIUS * 2 + 1
+WORLD_SIZE = (WORLD_RADIUS ** 2)* 4 + 1
 
 # json file pathing
 tile_file = Path(__file__).with_name("tile_type_assignment.json")
@@ -71,19 +77,74 @@ def generate_world(world_seed):
     #return the generated world and seed
     return world, world_seed
 
-def start(screen, world_seed):
+def start(screen, world_seed, world_name, load):
 
-    #send to generate world
-    world, world_seed = generate_world(world_seed)
+    #place character at center of world
+    character.spawn_at_center()
 
+    #create player inventory
+    player_inventory = Inventory()
+
+    #temporary test items
+    player_inventory.add_item("copper_wire", 10)
+    player_inventory.add_item("resistor", 5)
+    player_inventory.add_item("circuit_board", 3)
+    player_inventory.add_item("miner", 3)
+    player_inventory.add_item("assembler", 1)
+
+    #temporary machine placement data
+    #later this can be loaded/saved through the save system
+    placed_machines = {}
+
+    #tracks the machine currently being placed and its orientation
+    placement_state = machine_placement.MachinePlacementState()
+
+    #tracks if inventory is open
+    inventory_open = False
+    if load:
+        #load world from save
+        save_path = world_name
+
+        #load world and resource nodes from save
+        world = save_handler.get_world(save_path, WORLD_RADIUS)
+        resource_nodes_data = save_handler.load_nodes(save_path)
+
+        #load character data from save
+        character_data = save_handler.load_character(save_path)
+
+        placed_machines = save_handler.load_entity(save_path)
+
+        #update character position from save data
+        character.grid_x = character_data["Pos"][0]
+        character.grid_y = character_data["Pos"][1]
+
+    else:
+        #create save file
+        save_path = save_handler.create_save_file(world_name)
+
+        #create character save file
+        save_handler.create_character_file(save_path, 
+            character.grid_x, 
+            character.grid_y, 
+            player_inventory)
+        
+        #send to generate world
+        world, resource_nodes_data, world_seed = save_handler.create_world_file(
+            save_path, 
+            world_seed, 
+            WORLD_SIZE, 
+            WORLD_RADIUS)
+    
     #get screen size
     screen_width, screen_height = screen.get_size()
 
+    #temporary placement instruction font
+    placement_font = pygame.font.SysFont("arial", 18)
 
     #"camera"
-    #sets "camera position"
-    camera_x = 0
-    camera_y = 0
+    #camera follows character
+    camera_x = character.grid_x
+    camera_y = character.grid_y
 
     #main world loop
     running = True
@@ -92,14 +153,217 @@ def start(screen, world_seed):
         #detect events/inputs
         for event in pygame.event.get():
             #allow window to close
-            if event.type == pygame.quit:
+            if event.type == pygame.QUIT:
+                
+                #Save world and resource nodes to save file before exiting
+
+                inv_temp = player_inventory.to_dict()
+                character_data = {
+                    "Pos" : [character.grid_x, character.grid_y],
+                    "inventory" : inv_temp
+                }
+
+
+                save_handler.save_world(
+                    save_path, 
+                    world,
+                    resource_nodes_data, 
+                    WORLD_RADIUS, 
+                    WORLD_SIZE)
+                save_handler.save_nodes(save_path, resource_nodes_data)
+                save_handler.save_character(save_path, character_data)
+                save_handler.save_entitys(save_path, placed_machines)
+
+
+
                 running = False
 
             #keybord input
             elif event.type == pygame.KEYDOWN:
-                #esc to leave world(temporary)
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+
+                #rotate the selected machine while placement mode is active
+                if event.key == pygame.K_r and placement_state.active:
+                    placement_state.rotate()
+                    print(
+                        "Machine orientation:",
+                        machine_placement.get_orientation_name(
+                            placement_state.orientation
+                        )
+                    )
+
+                #open/close inventory
+                elif event.key == pygame.K_i and not placement_state.active:
+                    inventory_open = not inventory_open
+
+                #ESC cancels placement first, then closes inventory, then leaves world
+                elif event.key == pygame.K_ESCAPE:
+                    if placement_state.active:
+                        placement_state.cancel()
+                        print("Machine placement cancelled.")
+                    elif inventory_open:
+                        inventory_open = False
+                    else:
+                        #Save world and resource nodes to save file before exiting
+                        inv_temp = player_inventory.to_dict()
+                        character_data = {
+                            "Pos" : [character.grid_x, character.grid_y],
+                            "inventory" : inv_temp
+                        }
+                        
+                        save_handler.save_world(
+                            save_path, 
+                            world, 
+                            resource_nodes_data, 
+                            WORLD_RADIUS, 
+                            WORLD_SIZE)
+                        
+                        save_handler.save_nodes(save_path, resource_nodes_data)
+                        save_handler.save_character(save_path, character_data)
+
+                        print("entities saved: ", placed_machines)
+
+                        save_handler.save_entitys(save_path, placed_machines)
+
+                        running = False
+
+                #movement only works while inventory is closed
+                elif not inventory_open:
+
+                    #up
+                    if event.key in (pygame.K_w, pygame.K_UP):
+                        character.move(0, -1, WORLD_RADIUS)
+
+                    #down
+                    elif event.key in (pygame.K_s, pygame.K_DOWN):
+                        character.move(0, 1, WORLD_RADIUS)
+
+                    #left
+                    elif event.key in (pygame.K_a, pygame.K_LEFT):
+                        character.move(-1, 0, WORLD_RADIUS)
+
+                    #right
+                    elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                        character.move(1, 0, WORLD_RADIUS)
+
+            #mouse input
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+
+                #inventory clicks
+                if inventory_open and not placement_state.active:
+
+                    #only left click can press inventory buttons
+                    if event.button == 1:
+                        selected_machine = inventory_ui.handle_click(
+                            screen,
+                            event.pos,
+                            player_inventory
+                        )
+
+                        #a machine Place button was clicked
+                        if selected_machine is not None:
+
+                            #make sure the player still owns at least one
+                            if not player_inventory.has_item(
+                                selected_machine,
+                                1
+                            ):
+                                print(
+                                    f"No {selected_machine} available in inventory."
+                                )
+
+                            #start placement only if that machine has a
+                            #definition in Machines.json
+                            elif placement_state.start(
+                                selected_machine
+                            ):
+                                inventory_open = False
+
+                                print(
+                                    f"{selected_machine} placement mode started. "
+                                    "R rotates, left click places, "
+                                    "ESC/right click cancels."
+                                )
+
+                            else:
+                                print(
+                                    f"Machine '{selected_machine}' does not "
+                                    "have a placement definition yet."
+                                )
+
+                #world clicks while placing a machine
+                elif placement_state.active:
+
+                    #right click cancels placement
+                    if event.button == 3:
+                        placement_state.cancel()
+                        print("Machine placement cancelled.")
+
+                    #left click attempts to place the selected machine
+                    elif event.button == 1:
+                        mouse_x, mouse_y = event.pos
+
+                        grid_x, grid_y = machine_placement.screen_to_world(
+                            mouse_x,
+                            mouse_y,
+                            camera_x,
+                            camera_y,
+                            screen_width,
+                            screen_height,
+                            PIXEL_SIZE
+                        )
+
+                        selected_machine = (
+                            placement_state.selected_machine_id
+                        )
+
+                        #make sure the player still owns the selected machine
+                        if not player_inventory.has_item(
+                            selected_machine,
+                            1
+                        ):
+                            print(
+                                f"No {selected_machine} available in inventory."
+                            )
+                            placement_state.cancel()
+
+                        else:
+                            success, message, placed_data = (
+                                machine_placement.handle_build_click(
+                                    selected_machine,
+                                    grid_x,
+                                    grid_y,
+                                    placement_state.orientation,
+                                    resource_nodes_data,
+                                    placed_machines,
+                                    WORLD_RADIUS
+                                )
+                            )
+
+                            print(message)
+
+                            if success:
+                                #store the placed machine in the world
+                                placed_machines[
+                                    (grid_x, grid_y)
+                                ] = placed_data
+
+                                #remove exactly one machine from inventory
+                                player_inventory.remove_item(
+                                    selected_machine,
+                                    1
+                                )
+
+                                #if no more of this machine remain,
+                                #exit placement mode
+                                if not player_inventory.has_item(
+                                    selected_machine,
+                                    1
+                                ):
+                                    placement_state.cancel()
+
+        #camera follows character
+        camera_x = character.grid_x
+        camera_y = character.grid_y
 
         #draw screen
         #background
@@ -113,12 +377,15 @@ def start(screen, world_seed):
         half_tiles_x = tiles_x // 2
         half_tiles_y = tiles_y // 2
 
-
         #draw the tiles
         for x in range(camera_x - half_tiles_x, camera_x + half_tiles_x + 1):
             for y in range(camera_y - half_tiles_y, camera_y + half_tiles_y + 1):
+
                 #make sure coordinates exist in world
-                if(-WORLD_RADIUS <= x <= WORLD_RADIUS and -WORLD_RADIUS <= y <= WORLD_RADIUS):
+                if (
+                    -WORLD_RADIUS <= x <= WORLD_RADIUS
+                    and -WORLD_RADIUS <= y <= WORLD_RADIUS
+                ):
                     #get tile id
                     tile_id = world[(x, y)]
 
@@ -129,11 +396,131 @@ def start(screen, world_seed):
                     tile_color = tuple(tile_info["color"])
 
                     #convert world coordinates to screen coordinates
-                    screen_x = (screen_width // 2 + (x - camera_x) * PIXEL_SIZE)
-                    screen_y = (screen_height // 2 + (y - camera_y) * PIXEL_SIZE)
+                    screen_x = (
+                        screen_width // 2
+                        + (x - camera_x) * PIXEL_SIZE
+                    )
+
+                    screen_y = (
+                        screen_height // 2
+                        + (y - camera_y) * PIXEL_SIZE
+                    )
 
                     #draw tile
-                    pygame.draw.rect(screen, tile_color, (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE))
+                    pygame.draw.rect(
+                        screen,
+                        tile_color,
+                        (screen_x, screen_y, PIXEL_SIZE, PIXEL_SIZE)
+                    )
+
+        #draw resource nodes
+        resource_nodes.draw_resource_nodes(
+            screen,
+            resource_nodes_data,
+            camera_x,
+            camera_y,
+            screen_width,
+            screen_height,
+            PIXEL_SIZE
+        )
+
+        #draw machines that have already been placed
+        machine_placement.draw_placed_machines(
+            screen,
+            placed_machines,
+            camera_x,
+            camera_y,
+            screen_width,
+            screen_height,
+            PIXEL_SIZE
+        )
+
+        #draw character on top of world
+        character_screen_x = screen_width // 2
+        character_screen_y = screen_height // 2
+
+        character.draw(
+            screen,
+            character_screen_x,
+            character_screen_y,
+            PIXEL_SIZE
+        )
+
+        #draw placement preview under the mouse while placement mode is active
+        if placement_state.active:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            preview_grid_x, preview_grid_y = (
+                machine_placement.screen_to_world(
+                    mouse_x,
+                    mouse_y,
+                    camera_x,
+                    camera_y,
+                    screen_width,
+                    screen_height,
+                    PIXEL_SIZE
+                )
+            )
+
+            can_place, placement_reason = (
+                machine_placement.can_place_machine(
+                    placement_state.selected_machine_id,
+                    preview_grid_x,
+                    preview_grid_y,
+                    resource_nodes_data,
+                    placed_machines,
+                    WORLD_RADIUS
+                )
+            )
+
+            machine_placement.draw_placement_preview(
+                screen,
+                placement_state.selected_machine_id,
+                preview_grid_x,
+                preview_grid_y,
+                placement_state.orientation,
+                can_place,
+                camera_x,
+                camera_y,
+                screen_width,
+                screen_height,
+                PIXEL_SIZE
+            )
+
+            #temporary placement instructions
+            placement_text = (
+                f"Placing: {placement_state.selected_machine_id} | "
+                f"Facing: {machine_placement.get_orientation_name(placement_state.orientation)} | "
+                f"R = rotate | Left click = place | ESC/right click = cancel"
+            )
+
+            placement_surface = placement_font.render(
+                placement_text,
+                True,
+                (255, 255, 255)
+            )
+
+            screen.blit(
+                placement_surface,
+                (15, 15)
+            )
+
+            #show why the current tile is invalid
+            if not can_place:
+                reason_surface = placement_font.render(
+                    placement_reason,
+                    True,
+                    (255, 120, 120)
+                )
+
+                screen.blit(
+                    reason_surface,
+                    (15, 40)
+                )
+
+        #draw inventory if open
+        if inventory_open:
+            inventory_ui.draw(screen, player_inventory)
 
         #display world
         pygame.display.flip()

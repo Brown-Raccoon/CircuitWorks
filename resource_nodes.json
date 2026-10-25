@@ -1,0 +1,291 @@
+{
+    "resources": {
+
+        "coal": {
+            "name": "Coal",
+
+            "id": 1,
+
+            "primary_color": [40, 40, 40],
+
+            "secondary_color": [130, 130, 130],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 5,
+                "maximum": 10,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 4,
+                    "maximum": 7
+                }
+            }
+        },
+
+
+        "iron": {
+            "name": "Iron",
+
+            "id": 2,
+
+            "primary_color": [170, 65, 45],
+
+            "secondary_color": [150, 150, 150],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 5,
+                "maximum": 10,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 4,
+                    "maximum": 7
+                }
+            }
+        },
+
+
+        "copper": {
+            "name": "Copper",
+
+            "id": 3,
+
+            "primary_color": [190, 95, 40],
+
+            "secondary_color": [120, 150, 150],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 5,
+                "maximum": 10,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 4,
+                    "maximum": 7
+                }
+            }
+        },
+
+
+        "limestone": {
+            "name": "Limestone",
+
+            "id": 4,
+
+            "primary_color": [145, 145, 135],
+
+            "secondary_color": [205, 205, 195],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 5,
+                "maximum": 10,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 4,
+                    "maximum": 7
+                }
+            }
+        },
+
+
+        "sulfur": {
+            "name": "Sulfur",
+
+            "id": 5,
+
+            "primary_color": [190, 175, 35],
+
+            "secondary_color": [245, 230, 100],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 4,
+                "maximum": 8,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 4,
+                    "maximum": 7
+                }
+            }
+        },
+
+
+        "quartz": {
+            "name": "Quartz",
+
+            "id": 6,
+
+            "primary_color": [210, 210, 220],
+
+            "secondary_color": [120, 220, 240],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 4,
+                "maximum": 8,
+                "spread": 3
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 3,
+                    "maximum": 6
+                }
+            }
+        },
+
+
+        "uranium": {
+            "name": "Uranium",
+
+            "id": 7,
+
+            "primary_color": [55, 75, 55],
+
+            "secondary_color": [80, 255, 80],
+
+            "concentration": {
+                "low": {
+                    "resource_per_second": 1,
+                    "starting_amount": 300
+                },
+
+                "medium": {
+                    "resource_per_second": 2,
+                    "starting_amount": 600
+                },
+
+                "high": {
+                    "resource_per_second": 4,
+                    "starting_amount": 1200
+                }
+            },
+
+            "cluster_size": {
+                "minimum": 3,
+                "maximum": 6,
+                "spread": 2
+            },
+
+            "appearance": {
+                "rocks": {
+                    "minimum": 3,
+                    "maximum": 6
+                }
+            }
+        }
+
+    }
+}
