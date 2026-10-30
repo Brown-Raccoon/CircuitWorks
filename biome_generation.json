@@ -1,0 +1,174 @@
+{
+    "schema_version": 1,
+    "description": "Starter biome definitions. Generation weights and tile weights are tuning defaults, not an implemented biome-generation algorithm.",
+    "biomes": {
+        "plains": {
+            "name": "Plains",
+            "description": "Open grassy terrain.",
+            "generation_weight": 25,
+            "tile_weights": {
+                "2": 75,
+                "3": 15,
+                "11": 10
+            }
+        },
+        "forest": {
+            "name": "Forest",
+            "description": "Wooded areas with forest-floor tiles.",
+            "generation_weight": 17,
+            "tile_weights": {
+                "10": 60,
+                "2": 20,
+                "3": 10,
+                "9": 10
+            }
+        },
+        "desert": {
+            "name": "Desert",
+            "description": "Dry, mostly sandy regions.",
+            "generation_weight": 13,
+            "tile_weights": {
+                "6": 83,
+                "4": 7,
+                "14": 10
+            }
+        },
+        "lake": {
+            "name": "Lake",
+            "description": "Inland water body; possible river source.",
+            "generation_weight": 5,
+            "tile_weights": {
+                "1": 50,
+                "12": 35,
+                "13": 15
+            },
+            "feature_type": "water_body",
+            "can_source_river": true
+        },
+        "ocean": {
+            "name": "Ocean",
+            "description": "Large deep-water region.",
+            "generation_weight": 8,
+            "tile_weights": {
+                "13": 80,
+                "1": 15,
+                "12": 5
+            },
+            "feature_type": "water_body",
+            "prefer_world_edge": true
+        },
+        "snow": {
+            "name": "Snow",
+            "description": "Cold terrain with snow and ice.",
+            "generation_weight": 9,
+            "tile_weights": {
+                "7": 70,
+                "8": 15,
+                "4": 15
+            }
+        },
+        "mountain": {
+            "name": "Stone / Mountainous",
+            "description": "Rocky, mountainous terrain.",
+            "generation_weight": 10,
+            "tile_weights": {
+                "4": 65,
+                "14": 20,
+                "20": 15
+            }
+        },
+        "sulfur_pools": {
+            "name": "Sulfur Pools",
+            "description": "Sulfur-rich pools and surrounding mineral ground.",
+            "generation_weight": 4,
+            "tile_weights": {
+                "15": 42,
+                "4": 30,
+                "17": 18,
+                "14": 10
+            },
+            "hazard_tiles": [
+                "15"
+            ]
+        },
+        "volcanic_plains": {
+            "name": "Volcanic Plains",
+            "description": "Ash, basalt and occasional lava.",
+            "generation_weight": 5,
+            "tile_weights": {
+                "21": 35,
+                "16": 30,
+                "17": 25,
+                "5": 10
+            },
+            "hazard_tiles": [
+                "5"
+            ]
+        },
+        "storm_field": {
+            "name": "Storm Field",
+            "description": "Exposed, storm-affected ground.",
+            "generation_weight": 4,
+            "tile_weights": {
+                "18": 70,
+                "4": 15,
+                "20": 15
+            },
+            "environmental_effect": "storm_placeholder"
+        }
+    },
+    "features": {
+        "river": {
+            "name": "River",
+            "feature_type": "connected_waterway",
+            "is_primary_biome": false,
+            "description": "Future continuous river path starting at a lake and crossing eligible biomes.",
+            "source_biome": "lake",
+            "destination": "ocean_or_lake_or_world_edge",
+            "allowed_biomes": [
+                "plains",
+                "forest",
+                "desert",
+                "snow",
+                "mountain",
+                "storm_field"
+            ],
+            "width_tiles": {
+                "minimum": 1,
+                "maximum": 3
+            },
+            "tile_weights": {
+                "1": 65,
+                "12": 35
+            },
+            "requires_connected_path": true,
+            "generation_enabled": false
+        },
+        "mechanical_ruins": {
+            "name": "Mechanical Ruins",
+            "feature_type": "structure_overlay",
+            "is_primary_biome": false,
+            "description": "Future placeable ruin entity/structure layered over existing biome tiles.",
+            "allowed_biomes": [
+                "plains",
+                "forest",
+                "desert",
+                "snow",
+                "mountain",
+                "volcanic_plains",
+                "storm_field"
+            ],
+            "footprint_tiles": {
+                "minimum": 2,
+                "maximum": 6
+            },
+            "visual_tile_ids": [
+                "19",
+                "20",
+                "21"
+            ],
+            "preserve_underlying_biome": true,
+            "generation_enabled": false
+        }
+    }
+}
