@@ -25,6 +25,7 @@
             "name": "dirt",
             "type": "terrain",
             "walkable": true,
+            "solid": true,
             "slowed": false,
             "color": [130, 85, 40]
         },
@@ -69,6 +70,90 @@
             "solid": true,
             "slowed": false,
             "color": [139, 69, 19]
+        },
+        "10": {
+            "name": "forest_floor",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [65, 115, 55]
+        },
+        "11": {
+            "name": "tall_grass",
+            "type": "terrain",
+            "solid": true,
+            "slowed": true,
+            "color": [58, 150, 55]
+        },
+        "12": {
+            "name": "shallow_water",
+            "type": "terrain",
+            "solid": false,
+            "slowed": true,
+            "color": [63, 145, 205]
+        },
+        "13": {
+            "name": "deep_water",
+            "type": "terrain",
+            "solid": false,
+            "slowed": true,
+            "color": [20, 65, 155]
+        },
+        "14": {
+            "name": "gravel",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [125, 120, 110]
+        },
+        "15": {
+            "name": "sulfur_water",
+            "type": "hazard",
+            "solid": false,
+            "slowed": true,
+            "color": [190, 190, 55]
+        },
+        "16": {
+            "name": "ash",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [78, 75, 77]
+        },
+        "17": {
+            "name": "scorched_earth",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [85, 54, 45]
+        },
+        "18": {
+            "name": "storm_ground",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [75, 89, 105]
+        },
+        "19": {
+            "name": "ruins_floor",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [110, 115, 120]
+        },
+        "20": {
+            "name": "cracked_stone",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [92, 85, 82]
+        },
+        "21": {
+            "name": "basalt",
+            "type": "terrain",
+            "solid": true,
+            "slowed": false,
+            "color": [48, 49, 55]
         }
     }
 }
