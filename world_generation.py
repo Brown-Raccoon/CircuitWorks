@@ -171,7 +171,8 @@ def create_player_inventory():
     inventory = Inventory()
     for item, amount in (
         ("copper_wire", 10), ("resistor", 5), ("circuit_board", 3),
-        ("miner", 3), ("assembler", 1), ("conveyor", 30)
+        ("miner", 3), ("assembler", 1), ("conveyor", 30),
+        ("power_pole", 5), ("wind_turbine", 5)
     ):
         inventory.add_item(item, amount)
     return inventory
@@ -188,6 +189,28 @@ def save_game(save_path, world, nodes, inventory, machines):
     # save_handler.load_character currently reads a list of records.
     save_handler.save_character(save_path, [character_data])
     save_handler.save_entitys(save_path, machines)
+
+
+def remove_placed_machine(position, placed_machines, player_inventory):
+    """Remove one machine and refund its inventory item, if the item is valid.
+
+    Saved conveyor segments have shape-specific IDs, but all refund a single
+    'conveyor' inventory item. The world is only changed after the refund works.
+    """
+    placed_data = placed_machines.get(position)
+    if placed_data is None:
+        return False, "No placed machine on this tile."
+
+    machine_id = placed_data.get("machine_id")
+    item_id = (
+        "conveyor" if machine_placement.get_belt_type(machine_id) is not None
+        else machine_id
+    )
+    if not player_inventory.add_item(item_id, 1):
+        return False, f"Cannot return unknown item '{item_id}' to inventory."
+
+    del placed_machines[position]
+    return True, f"Removed {item_id} at {position}."
 
 
 def draw_terrain(screen, world, camera_x, camera_y, width, height):
@@ -245,6 +268,9 @@ def start(screen, world_seed, world_name, load):
         if isinstance(character_data, list):
             character_data = character_data[0]
         character.grid_x, character.grid_y = character_data["Pos"]
+        # Restore saved quantities, including items refunded by machine removal.
+        if "inventory" in character_data:
+            player_inventory.load_dict(character_data["inventory"])
 
     else:
         #create save file
@@ -324,19 +350,19 @@ def start(screen, world_seed, world_name, load):
 
                     #up
                     if event.key in (pygame.K_w, pygame.K_UP):
-                        character.move(0, -1, WORLD_RADIUS)
+                        character.move(0, -1, WORLD_RADIUS, placed_machines)
 
                     #down
                     elif event.key in (pygame.K_s, pygame.K_DOWN):
-                        character.move(0, 1, WORLD_RADIUS)
+                        character.move(0, 1, WORLD_RADIUS, placed_machines)
 
                     #left
                     elif event.key in (pygame.K_a, pygame.K_LEFT):
-                        character.move(-1, 0, WORLD_RADIUS)
+                        character.move(-1, 0, WORLD_RADIUS, placed_machines)
 
                     #right
                     elif event.key in (pygame.K_d, pygame.K_RIGHT):
-                        character.move(1, 0, WORLD_RADIUS)
+                        character.move(1, 0, WORLD_RADIUS, placed_machines)
 
             #mouse input
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -461,7 +487,9 @@ def start(screen, world_seed, world_name, load):
                                     placement_state.orientation,
                                     resource_nodes_data,
                                     placed_machines,
-                                    WORLD_RADIUS
+                                    WORLD_RADIUS,
+                                    world,
+                                    tile_types
                                 )
                             )
 
@@ -486,6 +514,18 @@ def start(screen, world_seed, world_name, load):
                                     1
                                 ):
                                     placement_state.cancel()
+
+                #right click in normal gameplay removes a placed building
+                elif not inventory_open and event.button == 3:
+                    gx, gy = machine_placement.screen_to_world(
+                        *event.pos, camera_x, camera_y,
+                        screen_width, screen_height, PIXEL_SIZE
+                    )
+                    if (gx, gy) in placed_machines:
+                        success, message = remove_placed_machine(
+                            (gx, gy), placed_machines, player_inventory
+                        )
+                        print(message)
 
             # Track conveyor path while holding the left mouse button.
             elif event.type == pygame.MOUSEMOTION and belt_dragging:
@@ -673,7 +713,9 @@ def start(screen, world_seed, world_name, load):
                         preview_grid_y,
                         resource_nodes_data,
                         placed_machines,
-                        WORLD_RADIUS
+                        WORLD_RADIUS,
+                        world,
+                        tile_types
                     )
                 )
 
