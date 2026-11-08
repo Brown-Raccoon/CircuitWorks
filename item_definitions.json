@@ -42,6 +42,20 @@
             "category": "machine",
             "stack_size": 100,
             "description": "Transports resources between machines."
+        },
+        "power_pole": {
+            "id": 7,
+            "name": "Power Pole",
+            "category": "machine",
+            "stack_size": 10,
+            "description": "A structure used to distribute electrical power between machines."
+        },
+        "wind_turbine": {
+            "id": 8,
+            "name": "Wind Turbine",
+            "category": "machine",
+            "stack_size": 10,
+            "description": "A machine designed to generate electrical power from wind."
         }
     }
 }
