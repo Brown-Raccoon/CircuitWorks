@@ -1,6 +1,7 @@
 #imports 
 import json
 from xml.dom.minidom import Node
+import threading
 
 #from networkx import nodes
 import world_generation
@@ -11,6 +12,7 @@ TILE_LENGTH = 2
 NODELAYER = 2
 VERSION = "0.4.3"
 SAVE_PATH = Path(__file__).with_name("saves")
+
 
 #### Save Handler
 
@@ -38,6 +40,8 @@ def create_file(path):
 
     #return success
     return bool
+
+### Entity
 
 """ Create tile entity save data
     Input =========
@@ -109,6 +113,8 @@ def save_entitys(path, entities):
     with open(f"{path}.entities", "w", encoding="utf-8") as file:
         json.dump(entity_list, file, indent=4)
         print("entity save saved succesfully\n")
+
+### Node
 
 """ Create Node save data
     Input =========
@@ -188,6 +194,8 @@ def save_nodes(path, nodes):
     with open(f"{path}.nodes", "w", encoding="utf-8") as file:
         json.dump(node_list, file, indent=4)
         print("node save saved succesfully\n")
+
+### World
 
 """ Create World
     Input =========
@@ -270,7 +278,7 @@ def get_world(path, radius):
     # return world
     return world
 
-"""World Save
+""" World Save
     Input =========
     Path path (Path to save file)
     World list
@@ -301,6 +309,8 @@ def save_world(path, world, nodes, radius, size):
 
                 #write resource node to save
                 file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
+
+### Character
 
 """ Create Character File
     Input =========
@@ -358,6 +368,8 @@ def save_character(path, characters):
     with open(f"{path}.player", "w", encoding="utf-8") as file:
         json.dump(characters, file, indent=4)
         print("character saved succesfully\n")
+
+### Save Root
 
 """ Create Save File
     Input =========
@@ -444,3 +456,138 @@ def list_saves():
 
     #return list of save file paths
     return path_list
+
+### Threaded Save Handler
+
+""" CREATE SAVE
+    Input =========
+    Name str (Save Name)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+"""
+def create_data(name, bar=None):
+
+    bar = 0
+
+    # create save file
+    file_path = create_save_file(name)
+
+    bar += 1
+
+    # create world file
+    world, nodes, seed = create_world_file(file_path, 0, 100, 50)
+
+    bar += 1
+
+    # create character file
+    characters = create_character_file(file_path, 0, 0, {})
+
+    bar += 1
+
+    # create entity file
+    entities = {}
+    create_entity_file(file_path, entities)
+
+    bar += 1
+
+    # return path to save file
+    return file_path, world, nodes, seed, characters, entities
+
+""" LOAD SAVE
+    Input =========
+    Path str (Path to save file)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+"""
+def load_data(path, bar=None):
+
+    bar = 0
+
+    # load save file
+    data = load_save(path)
+
+    bar += 1
+
+    # load world file
+    world = get_world(path, 50)
+
+    bar += 1
+
+    # load node file
+    nodes = load_nodes(path)
+
+    bar += 1
+
+    # load character file
+    characters = load_character(path)
+
+    bar += 1
+
+    # load entity file
+    entities = load_entity(path)
+
+    bar += 1
+
+    # return path to save file
+    return path, world, nodes, data["seed"], characters, entities
+
+""" SAVE SAVE
+    Input =========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    N/A
+"""
+def save_data(path, world, nodes, seed, characters, entities, bar=None):
+
+    bar = 0
+
+    # save world file
+    save_world(path, world, nodes, 50, 100)
+
+    bar += 1
+
+    # save node file
+    save_nodes(path, nodes)
+
+    bar += 1
+
+    # save character file
+    save_character(path, characters)
+
+    bar += 1
+
+    # save entity file
+    save_entitys(path, entities)
+
+    bar += 1
+
+    # load save file
+    data = load_save(path)
+
+    # update seed and last saved time
+    data["seed"] = seed
+    data["last_saved"] = characters[0]["last_saved"]
+
+    # save save file
+    save_save(path, data)
