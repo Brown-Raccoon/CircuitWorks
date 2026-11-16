@@ -1,0 +1,1492 @@
+{
+    "straight": {
+        "name": "conveyor_straight",
+        "id": "straight",
+        "level": 1,
+        "canvas_size": 64,
+        "tile_size": 32,
+        "description": "Straight conveyor - gapless edge to edge, real belt with drums",
+        "placement": {
+            "requires": "any",
+            "allow_overlap": false
+        },
+        "orientation": {
+            "enabled": true,
+            "default": 0,
+            "values": {
+                "0": "east",
+                "1": "south",
+                "2": "west",
+                "3": "north"
+            },
+            "output_marker": "output"
+        },
+        "colors": {
+            "shadow": [
+                0,
+                0,
+                0,
+                50
+            ],
+            "frame": [
+                45,
+                48,
+                55
+            ],
+            "iron": [
+                95,
+                100,
+                110
+            ],
+            "iron_light": [
+                135,
+                140,
+                150
+            ],
+            "leg": [
+                60,
+                64,
+                72
+            ],
+            "roller": [
+                55,
+                60,
+                70
+            ],
+            "roller_axle": [
+                35,
+                38,
+                44
+            ],
+            "belt": [
+                38,
+                40,
+                46
+            ],
+            "belt_top": [
+                58,
+                62,
+                72
+            ],
+            "belt_edge": [
+                28,
+                30,
+                36
+            ],
+            "belt_line": [
+                75,
+                78,
+                86
+            ],
+            "yellow": [
+                255,
+                210,
+                45
+            ]
+        },
+        "draw_calls": [
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 17,
+                "w": 64,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2,
+                "marker": "frame_top"
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 44,
+                "w": 64,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2,
+                "marker": "frame_bottom"
+            },
+            {
+                "func": "rect",
+                "x": 2,
+                "y": 20,
+                "w": 6,
+                "h": 24,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3,
+                "marker": "drum_left"
+            },
+            {
+                "func": "rect",
+                "x": 56,
+                "y": 20,
+                "w": 6,
+                "h": 24,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3,
+                "marker": "drum_right"
+            },
+            {
+                "func": "circle",
+                "x": 5,
+                "y": 32,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "circle",
+                "x": 59,
+                "y": 32,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 64,
+                "h": 20,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4,
+                "marker": "belt"
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 64,
+                "h": 2,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 40,
+                "w": 64,
+                "h": 2,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 18,
+                "y": 21,
+                "w": 2,
+                "h": 22,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 32,
+                "y": 21,
+                "w": 2,
+                "h": 22,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 46,
+                "y": 21,
+                "w": 2,
+                "h": 22,
+                "color": "iron_light",
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 8,
+                "y": 28,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 28,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 36,
+                "y": 28,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 50,
+                "y": 28,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 8,
+                "y": 34,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 34,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 36,
+                "y": 34,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 50,
+                "y": 34,
+                "w": 10,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "polygon",
+                "points": [
+                    [
+                        58,
+                        32
+                    ],
+                    [
+                        50,
+                        29
+                    ],
+                    [
+                        50,
+                        35
+                    ]
+                ],
+                "color": "yellow",
+                "layer": 7,
+                "marker": "output"
+            }
+        ]
+    },
+    "corner": {
+        "name": "conveyor_corner_right",
+        "id": "corner_right",
+        "level": 1,
+        "canvas_size": 64,
+        "tile_size": 32,
+        "description": "Corner conveyor - turns 90 deg, east to south by default, rotate for other turns",
+        "placement": {
+            "requires": "any",
+            "allow_overlap": false
+        },
+        "orientation": {
+            "enabled": true,
+            "default": 0,
+            "values": {
+                "0": "east_to_south",
+                "1": "south_to_west",
+                "2": "west_to_north",
+                "3": "north_to_east"
+            },
+            "output_marker": "output"
+        },
+        "colors": {
+            "shadow": [
+                0,
+                0,
+                0,
+                50
+            ],
+            "frame": [
+                45,
+                48,
+                55
+            ],
+            "iron": [
+                95,
+                100,
+                110
+            ],
+            "iron_light": [
+                135,
+                140,
+                150
+            ],
+            "leg": [
+                60,
+                64,
+                72
+            ],
+            "roller": [
+                55,
+                60,
+                70
+            ],
+            "roller_axle": [
+                35,
+                38,
+                44
+            ],
+            "belt": [
+                38,
+                40,
+                46
+            ],
+            "belt_top": [
+                58,
+                62,
+                72
+            ],
+            "belt_edge": [
+                28,
+                30,
+                36
+            ],
+            "belt_line": [
+                75,
+                78,
+                86
+            ],
+            "yellow": [
+                255,
+                210,
+                45
+            ]
+        },
+        "draw_calls": [
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 54,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 54,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 17,
+                "w": 64,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 44,
+                "w": 32,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 20,
+                "w": 3,
+                "h": 44,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 17,
+                "y": 20,
+                "w": 3,
+                "h": 24,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 2,
+                "y": 20,
+                "w": 6,
+                "h": 24,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 20,
+                "y": 56,
+                "w": 24,
+                "h": 6,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 5,
+                "y": 32,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 59,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 32,
+                "h": 20,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 22,
+                "w": 20,
+                "h": 42,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 22,
+                "w": 20,
+                "h": 20,
+                "color": "belt",
+                "radius": 3,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 30,
+                "h": 2,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 24,
+                "w": 2,
+                "h": 38,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 40,
+                "w": 20,
+                "h": 4,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 22,
+                "w": 4,
+                "h": 20,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 18,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 38,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 48,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "polygon",
+                "points": [
+                    [
+                        32,
+                        58
+                    ],
+                    [
+                        29,
+                        50
+                    ],
+                    [
+                        35,
+                        50
+                    ]
+                ],
+                "color": "yellow",
+                "layer": 7,
+                "marker": "output"
+            }
+        ]
+    },
+    "corner_right": {
+        "name": "conveyor_corner_right",
+        "id": "corner_right",
+        "level": 1,
+        "canvas_size": 64,
+        "tile_size": 32,
+        "description": "Corner conveyor - turns 90 deg, east to south by default, rotate for other turns",
+        "placement": {
+            "requires": "any",
+            "allow_overlap": false
+        },
+        "orientation": {
+            "enabled": true,
+            "default": 0,
+            "values": {
+                "0": "east_to_south",
+                "1": "south_to_west",
+                "2": "west_to_north",
+                "3": "north_to_east"
+            },
+            "output_marker": "output"
+        },
+        "colors": {
+            "shadow": [
+                0,
+                0,
+                0,
+                50
+            ],
+            "frame": [
+                45,
+                48,
+                55
+            ],
+            "iron": [
+                95,
+                100,
+                110
+            ],
+            "iron_light": [
+                135,
+                140,
+                150
+            ],
+            "leg": [
+                60,
+                64,
+                72
+            ],
+            "roller": [
+                55,
+                60,
+                70
+            ],
+            "roller_axle": [
+                35,
+                38,
+                44
+            ],
+            "belt": [
+                38,
+                40,
+                46
+            ],
+            "belt_top": [
+                58,
+                62,
+                72
+            ],
+            "belt_edge": [
+                28,
+                30,
+                36
+            ],
+            "belt_line": [
+                75,
+                78,
+                86
+            ],
+            "yellow": [
+                255,
+                210,
+                45
+            ]
+        },
+        "draw_calls": [
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 54,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 54,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 17,
+                "w": 64,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 44,
+                "w": 32,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 20,
+                "w": 3,
+                "h": 44,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 17,
+                "y": 20,
+                "w": 3,
+                "h": 24,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 2,
+                "y": 20,
+                "w": 6,
+                "h": 24,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 20,
+                "y": 56,
+                "w": 24,
+                "h": 6,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 5,
+                "y": 32,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 59,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 32,
+                "h": 20,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 22,
+                "w": 20,
+                "h": 42,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 22,
+                "w": 20,
+                "h": 20,
+                "color": "belt",
+                "radius": 3,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 30,
+                "h": 2,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 24,
+                "w": 2,
+                "h": 38,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 40,
+                "w": 20,
+                "h": 4,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 22,
+                "w": 4,
+                "h": 20,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 18,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 28,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 38,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 48,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "polygon",
+                "points": [
+                    [
+                        32,
+                        58
+                    ],
+                    [
+                        29,
+                        50
+                    ],
+                    [
+                        35,
+                        50
+                    ]
+                ],
+                "color": "yellow",
+                "layer": 7,
+                "marker": "output"
+            }
+        ]
+    },
+    "corner_left": {
+        "name": "conveyor_corner_left",
+        "id": "corner_left",
+        "level": 1,
+        "canvas_size": 64,
+        "tile_size": 32,
+        "description": "Corner left - west->north, mirror of right corner",
+        "placement": {
+            "requires": "any",
+            "allow_overlap": false
+        },
+        "orientation": {
+            "enabled": true,
+            "default": 0,
+            "values": {
+                "0": "west_to_north",
+                "1": "north_to_east",
+                "2": "east_to_south",
+                "3": "south_to_west"
+            },
+            "output_marker": "output"
+        },
+        "colors": {
+            "shadow": [
+                0,
+                0,
+                0,
+                50
+            ],
+            "frame": [
+                45,
+                48,
+                55
+            ],
+            "iron": [
+                95,
+                100,
+                110
+            ],
+            "iron_light": [
+                135,
+                140,
+                150
+            ],
+            "leg": [
+                60,
+                64,
+                72
+            ],
+            "roller": [
+                55,
+                60,
+                70
+            ],
+            "roller_axle": [
+                35,
+                38,
+                44
+            ],
+            "belt": [
+                38,
+                40,
+                46
+            ],
+            "belt_top": [
+                58,
+                62,
+                72
+            ],
+            "belt_edge": [
+                28,
+                30,
+                36
+            ],
+            "belt_line": [
+                75,
+                78,
+                86
+            ],
+            "yellow": [
+                255,
+                210,
+                45
+            ]
+        },
+        "draw_calls": [
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 44,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 16,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 6,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 54,
+                "y": 6,
+                "w": 4,
+                "h": 4,
+                "color": "leg",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 1
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 44,
+                "w": 64,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 17,
+                "w": 32,
+                "h": 3,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 44,
+                "y": 0,
+                "w": 3,
+                "h": 44,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 17,
+                "y": 20,
+                "w": 3,
+                "h": 24,
+                "color": "iron",
+                "outline": "frame",
+                "outline_width": 0.8,
+                "radius": 1,
+                "layer": 2
+            },
+            {
+                "func": "rect",
+                "x": 2,
+                "y": 20,
+                "w": 6,
+                "h": 24,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "rect",
+                "x": 20,
+                "y": 2,
+                "w": 24,
+                "h": 6,
+                "color": "roller",
+                "outline": "frame",
+                "outline_width": 1,
+                "radius": 2,
+                "layer": 3
+            },
+            {
+                "func": "circle",
+                "x": 5,
+                "y": 32,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "circle",
+                "x": 32,
+                "y": 5,
+                "r": 1.5,
+                "color": "roller_axle",
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 22,
+                "w": 32,
+                "h": 20,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 0,
+                "w": 20,
+                "h": 42,
+                "color": "belt",
+                "radius": 1,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 22,
+                "y": 22,
+                "w": 20,
+                "h": 20,
+                "color": "belt",
+                "radius": 3,
+                "layer": 4
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 40,
+                "w": 30,
+                "h": 2,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 2,
+                "w": 2,
+                "h": 38,
+                "color": "belt_top",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 0,
+                "y": 20,
+                "w": 20,
+                "h": 4,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 40,
+                "y": 22,
+                "w": 4,
+                "h": 20,
+                "color": "belt_edge",
+                "radius": 1,
+                "layer": 5
+            },
+            {
+                "func": "rect",
+                "x": 6,
+                "y": 34.5,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 18,
+                "y": 34.5,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 34.5,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 24.5,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "rect",
+                "x": 28,
+                "y": 14.5,
+                "w": 8,
+                "h": 1.5,
+                "color": "belt_line",
+                "radius": 0.7,
+                "layer": 6
+            },
+            {
+                "func": "polygon",
+                "points": [
+                    [
+                        32,
+                        6
+                    ],
+                    [
+                        29,
+                        14
+                    ],
+                    [
+                        35,
+                        14
+                    ]
+                ],
+                "color": "yellow",
+                "layer": 7,
+                "marker": "output"
+            }
+        ]
+    }
+}
