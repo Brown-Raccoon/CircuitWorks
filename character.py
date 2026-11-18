@@ -1,6 +1,7 @@
 #imports
 import pygame
 from pathlib import Path
+from functools import lru_cache
 
 #varibles and constants
 
@@ -32,6 +33,9 @@ ASSETS_PATH = Path(__file__).with_name("assets")
 #currently selected sprite set
 #none means "draw plain colored smiley instead"
 character_sprite_id = None
+
+# None preserves the sprite's original colors until the user picks a tint.
+character_sprite_tint = None
 
 #cache of loaded frame images, so each sprite set is only ever loaded from disk once
 _loaded_frames = {}
@@ -71,6 +75,18 @@ def _load_frames(sprite_id):
     return frames
 
 
+# Cache a few tint variations so drawing each frame does not recolor every tick.
+@lru_cache(maxsize=16)
+def _get_tinted_frames(sprite_id, tint_color):
+    tinted_frames = []
+    for frame in _load_frames(sprite_id):
+        # Grayscale preserves shading and transparency; RGB multiply adds color.
+        tinted = pygame.transform.grayscale(frame)
+        tinted.fill(tint_color, special_flags=pygame.BLEND_RGB_MULT)
+        tinted_frames.append(tinted)
+    return tinted_frames
+
+
 #returns just the idle frame for a sprite set  --used by character_creator.py to draw thumbnail buttons
 def get_idle_frame(sprite_id):
     return _load_frames(sprite_id)[0]
@@ -88,6 +104,15 @@ def set_sprite(sprite_id):
 #returns the currently selected sprite id or None if using the smiley
 def get_sprite():
     return character_sprite_id
+
+
+def set_sprite_tint(color):
+    global character_sprite_tint
+    character_sprite_tint = None if color is None else tuple(color)
+
+
+def get_sprite_tint():
+    return character_sprite_tint
 
 
 #called by the character creator when color is confirmed
@@ -110,11 +135,16 @@ def spawn_at_center():
 
 #will move the player a single tile in a given direction
 #dy and dx needs to be 1, 0 or -1 (eg. dx = 1 for right or dy = -1 for up)
-def move(dx, dy, world_radius):
+def move(dx, dy, world_radius, placed_machines=None):
     global grid_x, grid_y, facing_right, animation_frame, _animation_hold_timer
 
     new_x = grid_x + dx
     new_y = grid_y + dy
+
+    # Buildings occupy world-grid tiles; don't walk onto an occupied tile.
+    # The optional argument keeps existing code calling move() compatible.
+    if placed_machines is not None and (new_x, new_y) in placed_machines:
+        return
 
     moved = False
 
@@ -142,14 +172,16 @@ def move(dx, dy, world_radius):
 #will draw the character at screen pos
 #color/sprite_id let other files (the creator's preview box) show a selection before it's confirmed;
 #leave them unset to use whatever is actually saved
-def draw(screen, screen_x, screen_y, pixel_size, color=None, sprite_id=_NO_OVERRIDE):
+def draw(screen, screen_x, screen_y, pixel_size, color=None, sprite_id=_NO_OVERRIDE, tint_color=_NO_OVERRIDE):
     global animation_frame, _animation_hold_timer
 
     effective_sprite_id = character_sprite_id if sprite_id is _NO_OVERRIDE else sprite_id
+    effective_tint = character_sprite_tint if tint_color is _NO_OVERRIDE else tint_color
 
     #--- sprite mode ---
     if effective_sprite_id is not None:
-        frames = _load_frames(effective_sprite_id)
+        frames = (_get_tinted_frames(effective_sprite_id, tuple(effective_tint))
+                  if effective_tint is not None else _load_frames(effective_sprite_id))
         image = frames[animation_frame]
 
         if not facing_right:
