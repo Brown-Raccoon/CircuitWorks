@@ -9,6 +9,7 @@ import character
 import inventory_ui
 import machine_placement
 import resource_nodes
+import power_generation
 import save_handler
 from inventory import Inventory
 
@@ -172,13 +173,13 @@ def create_player_inventory():
     for item, amount in (
         ("copper_wire", 10), ("resistor", 5), ("circuit_board", 3),
         ("miner", 3), ("assembler", 1), ("conveyor", 30),
-        ("power_pole", 5), ("wind_turbine", 5)
+        ("power_pole", 5), ("wind_turbine", 5), ("power_cable", 20)
     ):
         inventory.add_item(item, amount)
     return inventory
 
 
-def save_game(save_path, world, nodes, inventory, machines):
+def save_game(save_path, world, nodes, inventory, machines, power_wires=None):
     """Persist the whole game consistently on ESC and window close."""
     character_data = {
         "Pos": [character.grid_x, character.grid_y],
@@ -189,6 +190,12 @@ def save_game(save_path, world, nodes, inventory, machines):
     # save_handler.load_character currently reads a list of records.
     save_handler.save_character(save_path, [character_data])
     save_handler.save_entitys(save_path, machines)
+    # Save wires - Access power_generation.py: wires_to_save()
+    if power_wires is not None:
+        wires_path = Path(save_path) / "wires.json"
+        wires_path.parent.mkdir(parents=True, exist_ok=True)
+        with wires_path.open("w", encoding="utf-8") as f:
+            json.dump(power_generation.wires_to_save(power_wires), f)
 
 
 def remove_placed_machine(position, placed_machines, player_inventory):
@@ -246,6 +253,10 @@ def start(screen, world_seed, world_name, load):
     belt_drag_tiles = []
     belt_drag_anchor = None  # existing belt end when extending a line
 
+    # Access power_generation.py: wire tool + power result
+    wire_tool = power_generation.PowerWireTool()
+    power_result = None
+
     #tracks if inventory is open
     inventory_open = False
     if load:
@@ -263,6 +274,13 @@ def start(screen, world_seed, world_name, load):
             placed_machines = save_handler.load_entity(save_path)
         except FileNotFoundError:
             placed_machines = {}
+
+        # Load wires if they exist - Access power_generation.py: wires_from_save()
+        try:
+            with (Path(save_path) / "wires.json").open("r", encoding="utf-8") as f:
+                wire_tool.wires = power_generation.wires_from_save(json.load(f))
+        except FileNotFoundError:
+            pass
 
         # Existing save_handler.load_character returns a list of records.
         if isinstance(character_data, list):
@@ -310,7 +328,7 @@ def start(screen, world_seed, world_name, load):
             if event.type == pygame.QUIT:
                 
                 save_game(save_path, world, resource_nodes_data,
-                          player_inventory, placed_machines)
+                          player_inventory, placed_machines, wire_tool.wires)
                 running = False
 
             #keybord input
@@ -326,13 +344,24 @@ def start(screen, world_seed, world_name, load):
                         )
                     )
 
-                #open/close inventory
+                #open/close inventory - pressing I in wire mode exits wire mode first
                 elif event.key == pygame.K_i and not placement_state.active:
+                    if wire_tool.active:
+                        wire_tool.cancel()
+                        print("Wire placement cancelled.")
                     inventory_open = not inventory_open
 
                 #ESC cancels placement first, then closes inventory, then leaves world
                 elif event.key == pygame.K_ESCAPE:
-                    if placement_state.active:
+                    if wire_tool.active:
+                        # First ESC cancels just the first click, second ESC exits wire mode
+                        if wire_tool.selected_pos is not None:
+                            wire_tool.selected_pos = None
+                            print("Wire start cancelled.")
+                        else:
+                            wire_tool.cancel()
+                            print("Wire placement cancelled.")
+                    elif placement_state.active:
                         placement_state.cancel()
                         belt_dragging = False
                         belt_drag_tiles = []
@@ -342,7 +371,7 @@ def start(screen, world_seed, world_name, load):
                         inventory_open = False
                     else:
                         save_game(save_path, world, resource_nodes_data,
-                                  player_inventory, placed_machines)
+                                  player_inventory, placed_machines, wire_tool.wires)
                         running = False
 
                 #movement only works while inventory is closed
@@ -381,8 +410,16 @@ def start(screen, world_seed, world_name, load):
                         #a machine Place button was clicked
                         if selected_machine is not None:
 
+                            # Cable Place button - start wire mode
+                            if selected_machine == "power_cable":
+                                # Access power_generation.py: wire_tool.start()
+                                if wire_tool.start(player_inventory):
+                                    inventory_open = False
+                                    print("Wire mode: click a turbine/pole/machine, then click another to connect. Right-click / ESC to exit.")
+                                else:
+                                    print("No power_cable in inventory.")
                             #make sure the player still owns at least one
-                            if not player_inventory.has_item(
+                            elif not player_inventory.has_item(
                                 selected_machine,
                                 1
                             ):
@@ -413,6 +450,32 @@ def start(screen, world_seed, world_name, load):
                                     f"Machine '{selected_machine}' does not "
                                     "have a placement definition yet."
                                 )
+
+                #world clicks while placing a wire - has priority over machines
+                elif wire_tool.active:
+
+                    # Right-click exits wire mode if no start picked, else cancels start pick
+                    if event.button == 3:
+                        if wire_tool.selected_pos is not None:
+                            wire_tool.selected_pos = None
+                            print("Wire start cancelled.")
+                        else:
+                            wire_tool.cancel()
+                            print("Wire placement cancelled.")
+                    elif event.button == 1:
+                        gx, gy = machine_placement.screen_to_world(
+                            *event.pos, camera_x, camera_y,
+                            screen_width, screen_height, PIXEL_SIZE
+                        )
+                        # Access power_generation.py: wire_tool.handle_click()
+                        # Consumes 1 power_cable from inventory on connect
+                        action, data = wire_tool.handle_click(
+                            (gx, gy), placed_machines,
+                            player_inventory, button=event.button
+                        )
+                        print(action, data)
+                        if action == "connected_out":
+                            print("Out of power_cable - wire mode exited.")
 
                 #world clicks while placing a machine
                 elif placement_state.active:
@@ -515,7 +578,9 @@ def start(screen, world_seed, world_name, load):
                                 ):
                                     placement_state.cancel()
 
-                #right click in normal gameplay removes a placed building
+                #right click in normal gameplay
+                # 1. On a machine = remove machine + its wires, refund cables
+                # 2. On a wire line = remove ONLY that wire, refund 1 cable
                 elif not inventory_open and event.button == 3:
                     gx, gy = machine_placement.screen_to_world(
                         *event.pos, camera_x, camera_y,
@@ -527,6 +592,35 @@ def start(screen, world_seed, world_name, load):
                         )
                         print(message)
 
+                        # Only remove wires if the machine actually got removed
+                        # Wires are returned - 1 power_cable per wire removed
+                        if success:
+                            removed = power_generation.remove_all_wires_at((gx, gy), wire_tool.wires)
+                            for _ in range(removed):
+                                player_inventory.add_item("power_cable", 1)
+                            if removed > 0:
+                                print(f"Returned {removed} power_cable(s).")
+                    else:
+                        # Clicked empty tile - check if it was on a wire line
+                        mx, my = event.pos
+                        closest_wire = None
+                        closest_dist = 999
+                        for a, b in list(wire_tool.wires):
+                            ax, ay = power_generation.world_to_screen(a[0], a[1], camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE)
+                            bx, by = power_generation.world_to_screen(b[0], b[1], camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE)
+                            ax += PIXEL_SIZE // 2
+                            ay += PIXEL_SIZE // 2
+                            bx += PIXEL_SIZE // 2
+                            by += PIXEL_SIZE // 2
+                            dist = power_generation._point_to_segment_dist(mx, my, ax, ay, bx, by)
+                            if dist < closest_dist:
+                                closest_dist = dist
+                                closest_wire = (a, b)
+                        # Same distance as hover tooltip - has to be right on the wire
+                        if closest_wire is not None and closest_dist <= 8:
+                            power_generation.remove_wire(closest_wire[0], closest_wire[1], wire_tool.wires)
+                            player_inventory.add_item("power_cable", 1)
+                            print(f"Removed wire {closest_wire} - returned 1 power_cable.")
             # Track conveyor path while holding the left mouse button.
             elif event.type == pygame.MOUSEMOTION and belt_dragging:
                 gx, gy = machine_placement.screen_to_world(
@@ -587,6 +681,12 @@ def start(screen, world_seed, world_name, load):
         camera_x = character.grid_x
         camera_y = character.grid_y
 
+        # Access power_generation.py: recalculate Ohm's law every frame
+        # Uses MachinePower.json ohms for each machine_id
+        power_result = power_generation.calculate_power_network(
+            placed_machines, wire_tool.wires
+        )
+
         #draw screen
         #background
         screen.fill((0, 0, 0))
@@ -615,6 +715,31 @@ def start(screen, world_seed, world_name, load):
             screen_height,
             PIXEL_SIZE
         )
+
+        #draw wires under character, on top of terrain
+        # Access power_generation.py: draw_power_wires()
+        #mouse to hover for information about wire connections
+        mouse_pos = pygame.mouse.get_pos()
+        power_generation.draw_power_wires(
+            screen, wire_tool.wires, placed_machines, power_result,
+            camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE,
+            mouse_pos=mouse_pos
+        )
+
+        #draw wire selection - yellow box on selected start machine
+        # Access power_generation.py: draw_wire_selection()
+        power_generation.draw_wire_selection(
+            screen, wire_tool.selected_pos,
+            camera_x, camera_y, screen_width, screen_height, PIXEL_SIZE
+        )
+
+        # Wire mode hint - so you always know how to exit
+        if wire_tool.active:
+            wire_hint = placement_font.render(
+                f"Placing Wire | Cables: x{player_inventory.get_quantity('power_cable')} | Left-click = connect | Right-click / ESC = exit",
+                True, (255, 255, 255)
+            )
+            screen.blit(wire_hint, (15, 15))
 
         #draw character on top of world
         character_screen_x = screen_width // 2
