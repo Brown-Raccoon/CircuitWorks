@@ -41,7 +41,9 @@ def get_items_by_category(player_inventory, category):
 # returns the main panel and both category rectangles
 # this keeps drawing and click detection using the exact same layout
 def get_inventory_layout(screen):
-    screen_width, screen_height = screen.get_size()
+    screen_width, screen_height = (
+        screen if isinstance(screen, tuple) else screen.get_size()
+    )
 
     # panel size
     panel_width = min(900, screen_width - 120)
@@ -179,6 +181,19 @@ def handle_click(screen, mouse_pos, player_inventory):
         "component"
     )
 
+    for item_key, quantity, item_info, row_rect in component_rows:
+        if item_key != "power_cable":
+            continue
+        place_button_rect = get_place_button_rect(row_rect)
+        if place_button_rect.collidepoint(mouse_pos):
+            return item_key
+
+    _, components_rect, _ = get_inventory_layout(screen)
+    component_rows = get_category_rows(
+        components_rect,
+        player_inventory,
+        "component"
+    )
     for item_key, quantity, item_info, row_rect in component_rows:
         if item_key != "power_cable":
             continue

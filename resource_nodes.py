@@ -236,12 +236,12 @@ def draw_resource_nodes(
         )
 
         # Convert world coordinates into screen coordinates
-        screen_x = (
+        screen_x = round(
             screen_width // 2
             + (x - camera_x) * pixel_size
         )
 
-        screen_y = (
+        screen_y = round(
             screen_height // 2
             + (y - camera_y) * pixel_size
         )
