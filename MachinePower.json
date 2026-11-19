@@ -1,0 +1,55 @@
+{
+  "wind_turbine": {
+    "type": "source",
+    "rated_volts": 120,
+    "max_watts": 600,
+    "max_amps": 5.0,
+    "internal_ohms": 0.5
+  },
+  "power_pole": {
+    "type": "passthrough",
+    "rated_volts": 120,
+    "contact_ohms": 0.05,
+    "watts": 0,
+    "ohms": 0
+  },
+  "miner": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 80,
+    "ohms": 180,
+    "description": "R = V^2 / P = 120^2 / 80 = 180 ohms"
+  },
+  "seller": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 25,
+    "ohms": 576,
+    "description": "R = 120^2 / 25 = 576 ohms"
+  },
+  "conveyor": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 5,
+    "ohms": 2880,
+    "description": "R = 120^2 / 5 = 2880 ohms"
+  },
+  "conveyor_straight": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 5,
+    "ohms": 2880
+  },
+  "conveyor_corner_right": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 5,
+    "ohms": 2880
+  },
+  "conveyor_corner_left": {
+    "type": "load",
+    "rated_volts": 120,
+    "watts": 5,
+    "ohms": 2880
+  }
+}
