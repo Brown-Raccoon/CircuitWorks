@@ -357,5 +357,90 @@
                 "layer": 4
             }
         ]
+    },
+    "power_pole": {
+      "id": "power_pole",
+      "name": "power_pole",
+      "canvas_size": 64,
+      "tile_size": 32,
+      "description": "Power pole",
+      "placement": {
+        "requires": "any",
+        "allow_overlap": false,
+        "not_on": ["water"],
+        "footprint": "1x1"
+      },
+      "orientation": {
+        "enabled": false,
+        "default": 0
+      },
+      "colors": {
+        "frame": [45, 48, 55],
+        "iron": [95, 100, 110],
+        "iron_light": [135, 140, 150],
+        "iron_dark": [65, 68, 75],
+        "concrete": [95, 95, 92],
+        "concrete_dark": [70, 70, 68],
+        "insulator": [55, 58, 65],
+        "insulator_glow": [80, 200, 120]
+      },
+      "draw_calls": [
+        {"func": "rect", "x": 26, "y": 46, "w": 12, "h": 3, "color": "concrete_dark", "radius": 1, "layer": 1},
+        {"func": "rect", "x": 28, "y": 44, "w": 8, "h": 4, "color": "concrete", "outline": "frame", "outline_width": 0.6, "radius": 1, "layer": 2},
+        {"func": "rect", "x": 30, "y": 16, "w": 4, "h": 30, "color": "iron_dark", "outline": "frame", "outline_width": 0.6, "radius": 1, "layer": 2},
+        {"func": "rect", "x": 30, "y": 16, "w": 4, "h": 30, "color": "iron", "radius": 1, "layer": 3},
+        {"func": "rect", "x": 30, "y": 16, "w": 1, "h": 30, "color": "iron_light", "radius": 0.5, "layer": 4},
+        {"func": "rect", "x": 20, "y": 20, "w": 24, "h": 3, "color": "iron_dark", "outline": "frame", "outline_width": 0.6, "radius": 1, "layer": 3},
+        {"func": "rect", "x": 20, "y": 20, "w": 24, "h": 3, "color": "iron", "radius": 1, "layer": 4},
+        {"func": "rect", "x": 20, "y": 20, "w": 24, "h": 1, "color": "iron_light", "radius": 0.5, "layer": 5},
+        {"func": "circle", "x": 24, "y": 23, "r": 2.5, "color": "insulator", "outline": "frame", "outline_width": 0.6, "layer": 5},
+        {"func": "circle", "x": 32, "y": 23, "r": 2.5, "color": "insulator", "outline": "frame", "outline_width": 0.6, "layer": 5},
+        {"func": "circle", "x": 40, "y": 23, "r": 2.5, "color": "insulator", "outline": "frame", "outline_width": 0.6, "layer": 5},
+        {"func": "circle", "x": 24, "y": 23, "r": 1, "color": "insulator_glow", "layer": 6},
+        {"func": "circle", "x": 32, "y": 23, "r": 1, "color": "insulator_glow", "layer": 6},
+        {"func": "circle", "x": 40, "y": 23, "r": 1, "color": "insulator_glow", "layer": 6}
+      ]
+    },
+    "wind_turbine": {
+      "id": "wind_turbine",
+      "name": "wind_turbine",
+      "canvas_size": 64,
+      "tile_size": 32,
+      "description": "Wind turbine - pole + hub + 3 blades, no rotation, power source",
+      "placement": {
+        "requires": "any",
+        "allow_overlap": false,
+        "not_on": ["water"],
+        "footprint": "1x1"
+      },
+      "orientation": {
+        "enabled": false,
+        "default": 0
+      },
+      "colors": {
+        "frame": [45, 48, 55],
+        "iron": [95, 100, 110],
+        "iron_light": [135, 140, 150],
+        "concrete": [110, 108, 105],
+        "concrete_dark": [85, 83, 80],
+        "hub": [55, 58, 65],
+        "hub_light": [85, 88, 95],
+        "blade": [225, 225, 230],
+        "blade_shadow": [180, 182, 188]
+      },
+      "draw_calls": [
+        {"func": "rect", "x": 24, "y": 44, "w": 16, "h": 4, "color": "concrete_dark", "outline": "frame", "outline_width": 0.8, "radius": 1, "layer": 1},
+        {"func": "rect", "x": 26, "y": 42, "w": 12, "h": 4, "color": "concrete", "outline": "frame", "outline_width": 0.8, "radius": 1, "layer": 2},
+        {"func": "rect", "x": 30, "y": 20, "w": 4, "h": 24, "color": "iron", "outline": "frame", "outline_width": 0.8, "radius": 1, "layer": 2},
+        {"func": "rect", "x": 31, "y": 20, "w": 1, "h": 24, "color": "iron_light", "radius": 0.5, "layer": 3},
+        {"func": "polygon", "points": [[32, 2], [30, 16], [34, 16]], "color": "blade_shadow", "layer": 3},
+        {"func": "polygon", "points": [[32, 3], [30.5, 15], [33.5, 15]], "color": "blade", "layer": 4},
+        {"func": "polygon", "points": [[44.5, 23], [31, 17.8], [33, 14.3]], "color": "blade_shadow", "layer": 3},
+        {"func": "polygon", "points": [[43.5, 22.5], [31.5, 17], [33, 15.2]], "color": "blade", "layer": 4},
+        {"func": "polygon", "points": [[19.5, 23], [31, 14.3], [33, 17.8]], "color": "blade_shadow", "layer": 3},
+        {"func": "polygon", "points": [[20.5, 22.5], [31, 15.2], [32.5, 17]], "color": "blade", "layer": 4},
+        {"func": "circle", "x": 32, "y": 16, "r": 4, "color": "hub", "outline": "frame", "outline_width": 0.8, "layer": 5},
+        {"func": "circle", "x": 32, "y": 16, "r": 2, "color": "hub_light", "layer": 6}
+      ]
     }
 }

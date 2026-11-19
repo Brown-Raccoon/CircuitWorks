@@ -175,6 +175,19 @@ def handle_click(screen, mouse_pos, player_inventory):
         if place_button_rect.collidepoint(mouse_pos):
             return item_key
 
+    _, components_rect, _ = get_inventory_layout(screen)
+    component_rows = get_category_rows(
+        components_rect,
+        player_inventory,
+        "component"
+    )
+    for item_key, quantity, item_info, row_rect in component_rows:
+        if item_key != "power_cable":
+            continue
+        place_button_rect = get_place_button_rect(row_rect)
+        if place_button_rect.collidepoint(mouse_pos):
+            return item_key
+
     return None
 
 
@@ -351,6 +364,8 @@ def draw_category_section(
             place_button_rect = get_place_button_rect(
                 row_rect
             )
+        elif category == "component" and item_key == "power_cable":
+            place_button_rect = get_place_button_rect(row_rect)
 
         draw_item_row(
             screen,

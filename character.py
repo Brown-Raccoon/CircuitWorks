@@ -1,10 +1,11 @@
 #imports
 import pygame
 import math
+from functools import lru_cache
 from pathlib import Path
 
 #varibles and constants
-SPEED_LIMIT = 1.3 / 500  # max speed in tiles per logic frame
+SPEED_LIMIT = 2.5 / 500  # max speed in tiles per logic frame
 SPRINT_MULTIPLIER = 2  # multiplier for sprinting speed
 
 #some default options for now (used when no sprite is selected)
@@ -37,6 +38,9 @@ ASSETS_PATH = Path(__file__).with_name("assets")
 #currently selected sprite set
 #none means "draw plain colored smiley instead"
 character_sprite_id = None
+
+# None preserves the original sprite colors until the user chooses a tint.
+character_sprite_tint = None
 
 #cache of loaded frame images, so each sprite set is only ever loaded from disk once
 _loaded_frames = {}
@@ -76,6 +80,17 @@ def _load_frames(sprite_id):
     return frames
 
 
+@lru_cache(maxsize=16)
+def _get_tinted_frames(sprite_id, tint_color):
+    """Cache recolored frame sets so tinting does not redraw every pixel per frame."""
+    tinted_frames = []
+    for frame in _load_frames(sprite_id):
+        tinted = pygame.transform.grayscale(frame)
+        tinted.fill(tint_color, special_flags=pygame.BLEND_RGB_MULT)
+        tinted_frames.append(tinted)
+    return tinted_frames
+
+
 #returns just the idle frame for a sprite set  --used by character_creator.py to draw thumbnail buttons
 def get_idle_frame(sprite_id):
     return _load_frames(sprite_id)[0]
@@ -93,6 +108,15 @@ def set_sprite(sprite_id):
 #returns the currently selected sprite id or None if using the smiley
 def get_sprite():
     return character_sprite_id
+
+
+def set_sprite_tint(color):
+    global character_sprite_tint
+    character_sprite_tint = None if color is None else tuple(color)
+
+
+def get_sprite_tint():
+    return character_sprite_tint
 
 
 #called by the character creator when color is confirmed
@@ -166,14 +190,16 @@ def accelerate(ddx, ddy, world_radius, friction=0.1, sprinting=False):
 #will draw the character at screen pos
 #color/sprite_id let other files (the creator's preview box) show a selection before it's confirmed;
 #leave them unset to use whatever is actually saved
-def draw(screen, screen_x, screen_y, pixel_size, color=None, sprite_id=_NO_OVERRIDE):
+def draw(screen, screen_x, screen_y, pixel_size, color=None, sprite_id=_NO_OVERRIDE, tint_color=_NO_OVERRIDE):
     global animation_frame, _animation_hold_timer
 
     effective_sprite_id = character_sprite_id if sprite_id is _NO_OVERRIDE else sprite_id
+    effective_tint = character_sprite_tint if tint_color is _NO_OVERRIDE else tint_color
 
     #--- sprite mode ---
     if effective_sprite_id is not None:
-        frames = _load_frames(effective_sprite_id)
+        frames = (_get_tinted_frames(effective_sprite_id, tuple(effective_tint))
+                  if effective_tint is not None else _load_frames(effective_sprite_id))
         image = frames[animation_frame]
 
         if not facing_right:
