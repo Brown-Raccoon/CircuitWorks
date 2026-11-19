@@ -22,6 +22,12 @@
             "stack_size": 50,
             "description": "A crafted component used in more advanced machines."
         },
+        "power_cable": {
+        "name": "Power Cable",
+        "category": "component",
+        "description": "Wire to connect turbines, poles, and machines",
+        "stack_size": 99
+        },
         "miner": {
             "id": 4,
             "name": "Miner",
