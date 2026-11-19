@@ -3,6 +3,7 @@ import pygame
 import math
 from functools import lru_cache
 from pathlib import Path
+from functools import lru_cache
 
 #varibles and constants
 SPEED_LIMIT = 2.5 / 500  # max speed in tiles per logic frame
@@ -39,7 +40,7 @@ ASSETS_PATH = Path(__file__).with_name("assets")
 #none means "draw plain colored smiley instead"
 character_sprite_id = None
 
-# None preserves the original sprite colors until the user chooses a tint.
+# None preserves the sprite's original colors until the user picks a tint.
 character_sprite_tint = None
 
 #cache of loaded frame images, so each sprite set is only ever loaded from disk once
@@ -80,11 +81,12 @@ def _load_frames(sprite_id):
     return frames
 
 
+# Cache a few tint variations so drawing each frame does not recolor every tick.
 @lru_cache(maxsize=16)
 def _get_tinted_frames(sprite_id, tint_color):
-    """Cache recolored frame sets so tinting does not redraw every pixel per frame."""
     tinted_frames = []
     for frame in _load_frames(sprite_id):
+        # Grayscale preserves shading and transparency; RGB multiply adds color.
         tinted = pygame.transform.grayscale(frame)
         tinted.fill(tint_color, special_flags=pygame.BLEND_RGB_MULT)
         tinted_frames.append(tinted)
@@ -139,12 +141,16 @@ def spawn_at_center():
 
 #will move the player a single tile in a given direction
 #dy and dx needs to be 1, 0 or -1 (eg. dx = 1 for right or dy = -1 for up)
-## Justin Note - We could use this to have belts move the player
-def move(dx, dy, world_radius):
+def move(dx, dy, world_radius, placed_machines=None):
     global grid_x, grid_y, facing_right, animation_frame, _animation_hold_timer
 
     new_x = grid_x + dx
     new_y = grid_y + dy
+
+    # Buildings occupy world-grid tiles; don't walk onto an occupied tile.
+    # The optional argument keeps existing code calling move() compatible.
+    if placed_machines is not None and (new_x, new_y) in placed_machines:
+        return
 
     moved = False
 

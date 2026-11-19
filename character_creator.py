@@ -62,7 +62,7 @@ def start(screen, anchor_rect):
     #preview window
     preview_rect = pygame.Rect(panel_rect.x + 20, panel_rect.y + 20, 70, 70)
 
-    #hue bar (only used when no sprite is selected - see the "Default" button below)
+    #hue bar (edits smiley color or tints the selected sprite)
     bar_rect = pygame.Rect(panel_rect.x + 20, preview_rect.bottom + 30, 240, 35)
     hue_bar_surface = build_hue_bar_surface(bar_rect.width, bar_rect.height)
 
@@ -152,7 +152,7 @@ def start(screen, anchor_rect):
                         for sprite_id, rect in sprite_rects.items():
                             if rect.collidepoint(event.pos):
                                 selected_sprite_id = sprite_id
-                                selected_tint = None
+                                selected_tint = None  # Use original sprite colors until changed
                                 hex_active = False
                                 clicked_sprite = True
                                 break
@@ -183,7 +183,7 @@ def start(screen, anchor_rect):
                 elif event.key == pygame.K_RETURN:
                     parsed = hex_to_rgb(hex_text)
                     if parsed is not None:
-                        current_color = parsed
+                        current_color = parsed  # Preserve the exact hex value
                         hue, _, _ = colorsys.rgb_to_hsv(parsed[0] / 255, parsed[1] / 255, parsed[2] / 255)
                         if selected_sprite_id is not None:
                             selected_tint = current_color
@@ -195,10 +195,6 @@ def start(screen, anchor_rect):
 
                     if typed_char in "0123456789ABCDEF" and len(hex_text) < 6:
                         hex_text += typed_char
-
-        #compute color from hue every frame
-        r, g, b = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
-        current_color = (int(r * 255), int(g * 255), int(b * 255))
 
 
         #keep sync between hex box and bar
@@ -274,9 +270,8 @@ def start(screen, anchor_rect):
 
     if confirmed:
         character.set_sprite(selected_sprite_id)
+        character.set_color(current_color)
         character.set_sprite_tint(selected_tint)
-        if selected_sprite_id is None:
-            character.set_color(current_color)
 
 
 

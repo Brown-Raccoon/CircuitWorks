@@ -392,7 +392,13 @@ class MachinePlacementState:
 
         self.active = True
         self.selected_machine_id = machine_id
-        self.orientation = 0
+        machine = get_machine(machine_id)
+        if machine is not None:
+            self.orientation = normalize_orientation(
+                machine.get("orientation", {}).get("default", 0)
+            )
+        else:
+            self.orientation = 0
         return True
 
     def cancel(self):
@@ -402,8 +408,12 @@ class MachinePlacementState:
         self.orientation = 0
 
     def rotate(self):
-        """Rotate the selected machine clockwise."""
+        """Rotate the selected machine clockwise if rotation is enabled."""
         if not self.active:
+            return self.orientation
+
+        machine = get_machine(self.selected_machine_id)
+        if machine is not None and not machine.get("orientation", {}).get("enabled", True):
             return self.orientation
 
         self.orientation = rotate_orientation(self.orientation)
@@ -467,6 +477,8 @@ def can_place_machine(
     resource_nodes,
     placed_machines,
     world_radius=None,
+    world_tiles=None,
+    tile_definitions=None,
 ):
     """
     Check whether a machine can be placed on a world tile.
@@ -481,8 +493,8 @@ def can_place_machine(
     - tile must be inside the world, if world_radius is supplied
     - tile cannot already contain another machine
     - miners must be placed on a resource node
-
-    Future machines can add more placement rules later.
+    - if the world map and tile definitions are supplied, honor "not_on"
+      terrain restrictions from the machine definition (e.g. water)
     """
     machine = get_machine(machine_id)
     if machine is None:
@@ -509,6 +521,16 @@ def can_place_machine(
     placement_info = machine.get("placement", {})
     requirement = placement_info.get("requires")
 
+    # Restrict terrain types listed in the machine definition.
+    # world_generation.py will pass both maps when checking placement.
+    forbidden_terrain = placement_info.get("not_on", [])
+    if forbidden_terrain and world_tiles is not None and tile_definitions is not None:
+        tile_id = world_tiles.get(position)
+        tile_info = tile_definitions.get(str(tile_id), {})
+        terrain_name = tile_info.get("name")
+        if terrain_name in forbidden_terrain:
+            return False, f"Cannot place on {terrain_name}"
+
     # For now, miner always requires a resource node.
     if machine_id == "miner" or requirement in ("ore_node", "resource_node"):
         if position not in resource_nodes:
@@ -527,6 +549,8 @@ def handle_build_click(
     resource_nodes,
     placed_machines,
     world_radius=None,
+    world_tiles=None,
+    tile_definitions=None,
 ):
     """
     Attempt to create data for a newly placed machine.
@@ -553,11 +577,15 @@ def handle_build_click(
         resource_nodes,
         placed_machines,
         world_radius,
+        world_tiles,
+        tile_definitions,
     )
 
     if not can_place:
         return False, reason, None
 
+    if not machine.get("orientation", {}).get("enabled", True):
+        orientation = machine.get("orientation", {}).get("default", 0)
     orientation = normalize_orientation(orientation)
 
     # Use optional names from Machines.json if they exist.
@@ -634,6 +662,9 @@ def draw_machine_at_marker(
 
     if machine is None:
         return False
+
+    if not machine.get("orientation", {}).get("enabled", True):
+        orientation = machine.get("orientation", {}).get("default", 0)
 
     colors = {
         name: tuple(value)
