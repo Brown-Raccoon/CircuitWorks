@@ -4,8 +4,8 @@ import math
 from pathlib import Path
 
 #varibles and constants
-SPEED_LIMIT = 1.0  # max speed in tiles per frame
-SPRINT_MULTIPLIER = 1.5  # multiplier for sprinting speed
+SPEED_LIMIT = 1.3 / 500  # max speed in tiles per logic frame
+SPRINT_MULTIPLIER = 2  # multiplier for sprinting speed
 
 #some default options for now (used when no sprite is selected)
 character_color = (255, 200, 100)
@@ -151,7 +151,7 @@ def accelerate(ddx, ddy, world_radius, friction=0.1, sprinting=False):
     # Limit the acceleration to the speed limit
     speed = math.hypot(acceleration_x, acceleration_y)
     if not (speed > SPEED_LIMIT * (SPRINT_MULTIPLIER if sprinting else 1)):
-       # Update acceleration based on input
+        # Update acceleration based on input
         acceleration_x += ddx
         acceleration_y += ddy
 

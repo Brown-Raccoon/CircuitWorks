@@ -20,6 +20,7 @@ WORLD_RADIUS = 1000
 WORLD_SIZE = (WORLD_RADIUS * 2 + 1) ** 2  # Number of tiles, not side length
 LOGIC_TPS = 500
 RENDER_FPS = 60
+Acceleration = 2.5 / LOGIC_TPS  # tiles per logic frame
 
 BASE_PATH = Path(__file__).resolve().parent
 TILE_FILE = BASE_PATH / "tile_type_assignment.json"
@@ -288,7 +289,7 @@ def draw_terrain(screen, world, camera_x, camera_y, width, height):
 ### external exceleration handler
 def handle_acceleration():
     sprinting=pygame.key.get_mods() & pygame.KMOD_SHIFT
-    character.accelerate(0, 0, WORLD_RADIUS, sprinting)
+    character.accelerate(0, 0, WORLD_RADIUS,.1, sprinting)
 
 def start(screen, world_seed, world_name, load):
 
@@ -419,9 +420,23 @@ def start(screen, world_seed, world_name, load):
             x /= length 
             y /= length
 
+            x*= Acceleration
+            y*= Acceleration
+
             ### apply sprint multiplier if shift is held
             sprinting = pygame.key.get_mods() & pygame.KMOD_SHIFT
             character.accelerate(x, y, WORLD_RADIUS, sprinting=sprinting)
+
+        def handle_key(keys_pressed):
+            if keys_pressed[pygame.K_w] or keys_pressed[pygame.K_UP]:
+                move_player(pygame.K_w)
+            if keys_pressed[pygame.K_s] or keys_pressed[pygame.K_DOWN]:
+                move_player(pygame.K_s)
+            if keys_pressed[pygame.K_a] or keys_pressed[pygame.K_LEFT]:
+                move_player(pygame.K_a)
+            if keys_pressed[pygame.K_d] or keys_pressed[pygame.K_RIGHT]:
+                move_player(pygame.K_d)
+
         
         def handle_keydown(key):
             if key == pygame.K_r and placement_state.active:
@@ -430,9 +445,6 @@ def start(screen, world_seed, world_name, load):
                 toggle_inventory()
             elif key == pygame.K_ESCAPE:
                 escape_action()
-            elif not inventory_open and key in (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, 
-                                    pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
-                move_player(key)
 
         def select_inventory_machine(position):
             nonlocal inventory_open
@@ -573,6 +585,12 @@ def start(screen, world_seed, world_name, load):
                 elif button == 1:
                     place_machine(position)
 
+        keys_pressed = pygame.key.get_pressed()
+        if not inventory_open and not placement_state.active:
+            handle_key(keys_pressed)
+
+        if event is None:
+            return
         if event.type == pygame.QUIT:
             quit_game()
         elif event.type == pygame.KEYDOWN:
@@ -591,19 +609,17 @@ def start(screen, world_seed, world_name, load):
         try:
             while not stop_event.is_set() and running:
                 next_tick += logic_interval
-                with state_lock:
-                    camera_x = character.grid_x
-                    camera_y = character.grid_y
-                    while running:
-                        try:
-                            event = event_queue.get_nowait()
-                        except Empty:
-                            break
-                        process_event(event)
-                        ## handle acceleration even if no keydown event is received
-                        handle_acceleration()
-                        camera_x = character.grid_x
-                        camera_y = character.grid_y
+                try:
+                    event = event_queue.get_nowait()
+                except Empty:
+                    event = None
+
+                process_event(event)
+
+                ## handle acceleration even if no keydown event is received
+                handle_acceleration()
+                camera_x = character.grid_x
+                camera_y = character.grid_y
 
                 delay = next_tick - time.perf_counter()
                 if delay > 0:
