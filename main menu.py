@@ -165,8 +165,6 @@ while running == True:
         start_hover = False
     screen.blit(start_text, start_text.get_rect(center=start_rect.center))
 
-
-
     #load
     if load_rect.collidepoint(mouse_pos):
         pygame.draw.rect(screen, BLUE, load_rect)

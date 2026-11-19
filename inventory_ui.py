@@ -41,7 +41,9 @@ def get_items_by_category(player_inventory, category):
 # returns the main panel and both category rectangles
 # this keeps drawing and click detection using the exact same layout
 def get_inventory_layout(screen):
-    screen_width, screen_height = screen.get_size()
+    screen_width, screen_height = (
+        screen if isinstance(screen, tuple) else screen.get_size()
+    )
 
     # panel size
     panel_width = min(900, screen_width - 120)

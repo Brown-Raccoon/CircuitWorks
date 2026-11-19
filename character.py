@@ -1,8 +1,11 @@
 #imports
 import pygame
+import math
 from pathlib import Path
 
 #varibles and constants
+SPEED_LIMIT = 1.0  # max speed in tiles per frame
+SPRINT_MULTIPLIER = 1.5  # multiplier for sprinting speed
 
 #some default options for now (used when no sprite is selected)
 character_color = (255, 200, 100)
@@ -11,6 +14,8 @@ character_shape = "Smiley"
 #characters pos using the world grid coords
 grid_x = 0
 grid_y = 0
+acceleration_x = 0
+acceleration_y = 0
 
 #sprite support 
 
@@ -110,6 +115,7 @@ def spawn_at_center():
 
 #will move the player a single tile in a given direction
 #dy and dx needs to be 1, 0 or -1 (eg. dx = 1 for right or dy = -1 for up)
+## Justin Note - We could use this to have belts move the player
 def move(dx, dy, world_radius):
     global grid_x, grid_y, facing_right, animation_frame, _animation_hold_timer
 
@@ -137,6 +143,24 @@ def move(dx, dy, world_radius):
         #advance to the next walk-cycle frame (cycles 1, 2, 3, 1, 2, 3...) and reset the hold timer
         animation_frame = (animation_frame % 3) + 1
         _animation_hold_timer = WALK_ANIMATION_HOLD
+
+#acceleration-based movement function
+def accelerate(ddx, ddy, world_radius, friction=0.1, sprinting=False):
+    global acceleration_x, acceleration_y
+
+    # Limit the acceleration to the speed limit
+    speed = math.hypot(acceleration_x, acceleration_y)
+    if not (speed > SPEED_LIMIT * (SPRINT_MULTIPLIER if sprinting else 1)):
+       # Update acceleration based on input
+        acceleration_x += ddx
+        acceleration_y += ddy
+
+    # Apply friction to gradually reduce acceleration
+    acceleration_x *= (1 - friction)
+    acceleration_y *= (1 - friction)
+
+    # Calculate new position based on acceleration
+    move(acceleration_x, acceleration_y, world_radius)
 
 
 #will draw the character at screen pos
