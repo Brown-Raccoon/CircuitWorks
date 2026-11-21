@@ -1,6 +1,8 @@
 #imports 
 import json
 from xml.dom.minidom import Node
+import threading
+import time
 
 #from networkx import nodes
 import world_generation
@@ -11,6 +13,7 @@ TILE_LENGTH = 2
 NODELAYER = 2
 VERSION = "0.4.3"
 SAVE_PATH = Path(__file__).with_name("saves")
+
 
 #### Save Handler
 
@@ -38,6 +41,8 @@ def create_file(path):
 
     #return success
     return bool
+
+### Entity
 
 """ Create tile entity save data
     Input =========
@@ -109,6 +114,8 @@ def save_entitys(path, entities):
     with open(f"{path}.entities", "w", encoding="utf-8") as file:
         json.dump(entity_list, file, indent=4)
         print("entity save saved succesfully\n")
+
+### Node
 
 """ Create Node save data
     Input =========
@@ -189,6 +196,8 @@ def save_nodes(path, nodes):
         json.dump(node_list, file, indent=4)
         print("node save saved succesfully\n")
 
+### World
+
 """ Create World
     Input =========
     Path path (Path to save file)
@@ -214,7 +223,7 @@ def create_world_file(path, seed, size, radius):
         file.write(size.to_bytes(length=8, byteorder='big', signed=False))
 
         #create world
-        world, seed = world_generation.generate_world(seed)
+        world, seed = world_generation.generate_world(seed, radius)
         nodes = resource_nodes.generate_resource_nodes(seed, radius)
 
         #write world to save
@@ -270,7 +279,7 @@ def get_world(path, radius):
     # return world
     return world
 
-"""World Save
+""" World Save
     Input =========
     Path path (Path to save file)
     World list
@@ -302,6 +311,8 @@ def save_world(path, world, nodes, radius, size):
                 #write resource node to save
                 file.write(int(resource_node).to_bytes(length=TILE_LENGTH, byteorder='big', signed=False))
 
+### Character
+
 """ Create Character File
     Input =========
     Path path (Path to save file)
@@ -315,9 +326,16 @@ def create_character_file(save, posx, posy, inventory):
     create_file(Path(f"{save}.player"))
 
     #create character data
+    if hasattr(inventory, "to_dict"):
+        inventory_data = inventory.to_dict()
+    elif isinstance(inventory, dict):
+        inventory_data = inventory
+    else:
+        inventory_data = {}
+
     data = [{
         "Pos" : [posx, posy],
-        "inventory" : {},
+        "inventory" : inventory_data,
         "version" : VERSION,
         "last_saved" : 0.0
     }]
@@ -358,6 +376,8 @@ def save_character(path, characters):
     with open(f"{path}.player", "w", encoding="utf-8") as file:
         json.dump(characters, file, indent=4)
         print("character saved succesfully\n")
+
+### Save Root
 
 """ Create Save File
     Input =========
@@ -444,3 +464,157 @@ def list_saves():
 
     #return list of save file paths
     return path_list
+
+### Threaded Save Handler
+
+""" CREATE SAVE
+    Input =========
+    Name str (Save Name)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+"""
+def create_data(name, bar=None, inventory=None, radius=None,
+                progress_callback=None, seed=0):
+    radius = world_generation.WORLD_RADIUS if radius is None else radius
+    size = (radius * 2 + 1) ** 2
+
+    # create save file
+    if progress_callback:
+        progress_callback("Creating save", 0.05)
+    file_path = create_save_file(name)
+
+    # create world file
+    if progress_callback:
+        progress_callback("Generating world", 0.15)
+    world, nodes, seed = create_world_file(file_path, seed, size, radius)
+
+    # create character file
+    if progress_callback:
+        progress_callback("Creating character data", 0.7)
+    characters = create_character_file(
+        file_path, 0, 0, {} if inventory is None else inventory
+    )
+
+    # create entity file
+    if progress_callback:
+        progress_callback("Creating machine data", 0.85)
+    entities = {}
+    create_entity_file(file_path, entities)
+    if progress_callback:
+        progress_callback("Finalizing save", 0.95)
+    save_metadata = load_save(file_path)
+    save_metadata["seed"] = seed
+    save_save(file_path, save_metadata)
+    if progress_callback:
+        progress_callback("Finalizing save", 1.0)
+
+    # return path to save file
+    return file_path, world, nodes, seed, characters, entities
+
+""" LOAD SAVE
+    Input =========
+    Path str (Path to save file)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+"""
+def load_data(path, bar=None, radius=None, progress_callback=None):
+    radius = world_generation.WORLD_RADIUS if radius is None else radius
+
+    # load save file
+    if progress_callback:
+        progress_callback("Reading save metadata", 0.05)
+    data = load_save(path)
+
+    # load world file
+    if progress_callback:
+        progress_callback("Loading world", 0.2)
+    world = get_world(path, radius)
+
+    # load node file
+    if progress_callback:
+        progress_callback("Loading resources", 0.5)
+    nodes = load_nodes(path)
+
+    # load character file
+    if progress_callback:
+        progress_callback("Loading character", 0.7)
+    characters = load_character(path)
+
+    # load entity file
+    if progress_callback:
+        progress_callback("Loading machines", 0.85)
+    try:
+        entities = load_entity(path)
+    except FileNotFoundError:
+        entities = {}
+    if progress_callback:
+        progress_callback("Loading machines", 1.0)
+
+    # return path to save file
+    return path, world, nodes, data.get("seed", 0), characters, entities
+
+""" SAVE SAVE
+    Input =========
+    Path str (Path to save file)
+    world list (World data)
+    nodes list (Node data)
+    seed int (World seed)
+    characters list (Character data)
+    entities dict (Entity data)
+    Dynamic =======
+    Bar int (Progress bar object)
+    Output ========
+    N/A
+"""
+def save_data(path, world, nodes, seed, characters, entities, bar=None,
+              radius=None, progress_callback=None):
+    radius = world_generation.WORLD_RADIUS if radius is None else radius
+    size = (radius * 2 + 1) ** 2
+
+    # save world file
+    if progress_callback:
+        progress_callback("Saving world", 0.05)
+    save_world(path, world, nodes, radius, size)
+
+    # save node file
+    if progress_callback:
+        progress_callback("Saving resources", 0.3)
+    save_nodes(path, nodes)
+
+    # save character file
+    if progress_callback:
+        progress_callback("Saving character", 0.55)
+    save_character(path, characters)
+
+    # save entity file
+    if progress_callback:
+        progress_callback("Saving machines", 0.75)
+    save_entitys(path, entities)
+
+    # load save file
+    if progress_callback:
+        progress_callback("Finalizing save", 0.9)
+    data = load_save(path)
+
+    # update seed and last saved time
+    data["seed"] = seed
+    data["last_saved"] = characters[0].get("last_saved", time.time())
+
+    # save save file
+    save_save(path, data)
+    if progress_callback:
+        progress_callback("Save complete", 1.0)

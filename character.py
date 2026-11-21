@@ -1,9 +1,13 @@
 #imports
 import pygame
+import math
+from functools import lru_cache
 from pathlib import Path
 from functools import lru_cache
 
 #varibles and constants
+SPEED_LIMIT = 2.5 / 500  # max speed in tiles per logic frame
+SPRINT_MULTIPLIER = 2  # multiplier for sprinting speed
 
 #some default options for now (used when no sprite is selected)
 character_color = (255, 200, 100)
@@ -12,6 +16,8 @@ character_shape = "Smiley"
 #characters pos using the world grid coords
 grid_x = 0
 grid_y = 0
+acceleration_x = 0
+acceleration_y = 0
 
 #sprite support 
 
@@ -167,6 +173,24 @@ def move(dx, dy, world_radius, placed_machines=None):
         #advance to the next walk-cycle frame (cycles 1, 2, 3, 1, 2, 3...) and reset the hold timer
         animation_frame = (animation_frame % 3) + 1
         _animation_hold_timer = WALK_ANIMATION_HOLD
+
+#acceleration-based movement function
+def accelerate(ddx, ddy, world_radius, friction=0.1, sprinting=False):
+    global acceleration_x, acceleration_y
+
+    # Limit the acceleration to the speed limit
+    speed = math.hypot(acceleration_x, acceleration_y)
+    if not (speed > SPEED_LIMIT * (SPRINT_MULTIPLIER if sprinting else 1)):
+        # Update acceleration based on input
+        acceleration_x += ddx
+        acceleration_y += ddy
+
+    # Apply friction to gradually reduce acceleration
+    acceleration_x *= (1 - friction)
+    acceleration_y *= (1 - friction)
+
+    # Calculate new position based on acceleration
+    move(acceleration_x, acceleration_y, world_radius)
 
 
 #will draw the character at screen pos
