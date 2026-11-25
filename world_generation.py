@@ -338,6 +338,37 @@ def start(screen, world_seed, world_name, load):
 
     #tracks if inventory is open
     inventory_open = False
+
+    #Track if the placement UI is open
+    placement_ui = False
+
+    #Track if the writing UI is open
+    writing_ui = False
+
+    #Define dimensions of placement
+    placement_ui_dimensions = pygame.Rect(300, 130, 1500, 900)
+    placement_ui_items_dimensions = pygame.Rect(120, 130, 300, 900)
+
+    #Define dimensions of writing UI
+    writing_ui_dimensions = pygame.Rect(120, 130, 1680, 900)
+    writing_ui_text_dimensions = pygame.Rect(140, 180, 1640, 800)
+
+    #Define colors for placement, writing UI
+    PLACE_COLOR = (237, 255, 217)
+    PLACE_ITEMS_COLOR = (145, 145, 144)
+    WRITING_UI_COLOR = (69, 63, 63)
+    WRITING_UI_TEXT_COLOR = (255, 255, 255)
+
+    #Define font of text that user types
+    base_font = pygame.font.Font(None, 32)
+
+    #Holds the users text
+    program_text = ""
+
+    #Defines current level if the user has clicked the writing_ui_text_dimensions
+    active_text_input = False
+
+
     if load:
         operation = lambda report: save_handler.load_data(
             world_name,
@@ -403,6 +434,8 @@ def start(screen, world_seed, world_name, load):
         nonlocal running, save_requested, inventory_open, belt_dragging
         nonlocal belt_drag_tiles, belt_drag_anchor
 
+        nonlocal placement_ui, writing_ui, active_text_input
+
         def quit_game():
             nonlocal running, save_requested
             save_requested = True
@@ -421,6 +454,14 @@ def start(screen, world_seed, world_name, load):
                 wire_tool.cancel()
             inventory_open = not inventory_open
 
+        def toggle_placement_ui():
+            nonlocal placement_ui
+            placement_ui = not placement_ui
+
+        def toggle_writing_ui():
+            nonlocal writing_ui
+            writing_ui = not writing_ui
+        
         def cancel_placement():
             nonlocal belt_dragging, belt_drag_tiles, belt_drag_anchor
             placement_state.cancel()
@@ -487,6 +528,10 @@ def start(screen, world_seed, world_name, load):
                 rotate_placement()
             elif key == pygame.K_i and not placement_state.active:
                 toggle_inventory()
+            elif key == pygame.K_1:
+                toggle_placement_ui()
+            elif key == pygame.K_2:
+                toggle_writing_ui()
             elif key == pygame.K_ESCAPE:
                 escape_action()
 
@@ -700,6 +745,28 @@ def start(screen, world_seed, world_name, load):
                         player_inventory.add_item("power_cable", 1)
                         print("Removed wire - returned 1 power_cable.")
 
+        def handle_writing(position):
+            nonlocal active_text_input
+            if writing_ui:
+                if writing_ui_text_dimensions.collidepoint(position):
+                    active_text_input = True
+                else:
+                    active_text_input = False
+                
+
+            if (active_text_input == True) and (writing_ui_dimensions.collidepoint(position) == False): 
+                active_text_input = False
+
+        def handle_writes(key):
+            nonlocal program_text, active_text_input
+            if active_text_input:
+                if event.key == pygame.K_BACKSPACE:
+                    program_text = program_text[:-1]
+                elif event.key == pygame.K_RETURN:
+                    program_text += "\n"
+                elif hasattr(key, "unicode") and key.unicode:
+                    program_text += event.unicode
+                
         keys_pressed = pygame.key.get_pressed()
         if not inventory_open and not placement_state.active:
             handle_key(keys_pressed)
@@ -710,8 +777,10 @@ def start(screen, world_seed, world_name, load):
             quit_game()
         elif event.type == pygame.KEYDOWN:
             handle_keydown(event.key)
+            handle_writes(event)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             handle_mouse_button_down(event.button, event.pos)
+            handle_writing(event.pos)
         elif event.type == pygame.MOUSEMOTION and belt_dragging:
             track_belt_drag(event.pos)
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and belt_dragging:
@@ -993,11 +1062,31 @@ def start(screen, world_seed, world_name, load):
             if render_inventory_open:
                 inventory_ui.draw(screen, render_inventory)
 
+            if placement_ui:
+                pygame.draw.rect(screen, PLACE_COLOR, placement_ui_dimensions, border_radius = 10)
+                pygame.draw.rect(screen, PLACE_ITEMS_COLOR, placement_ui_items_dimensions, border_top_left_radius = 10, border_bottom_left_radius = 10)
+
+
+            if writing_ui:
+                pygame.draw.rect(screen, WRITING_UI_COLOR, writing_ui_dimensions, border_radius = 10)
+                pygame.draw.rect(screen, WRITING_UI_COLOR, writing_ui_text_dimensions, border_radius = 10)
+            
+            if active_text_input and writing_ui:
+                lines = program_text.split("\n")
+                lines_height = base_font.get_linesize()
+
+                start_x = writing_ui_dimensions.x + 15
+                start_y = writing_ui_dimensions.y + 15
+
+                for i, line in enumerate(lines):
+                    text_surface = base_font.render(line, True, WRITING_UI_TEXT_COLOR)
+                    screen.blit(text_surface, (start_x, start_y + (i * lines_height)))                
+            
             #display world
             pygame.display.flip()
 
             render_clock.tick(RENDER_FPS)
-    
+    #################
     ### thread cleanup
     finally:
         stop_event.set()
