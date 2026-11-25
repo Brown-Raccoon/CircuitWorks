@@ -108,47 +108,6 @@ title_rect = title_surface.get_rect(center = (screen_width //2, 150))
 screen.blit(title_surface, title_rect)
 
 
-## Component Placement UI
-placement_ui = False
-writing_ui = False
-
-#Define dimensions of the main placement portion
-placement_ui_dimensions = pygame.Rect(300, 130, 1500, 900)
-
-#Define dimensions of the location of components to be presented
-placement_ui_items_dimensions = pygame.Rect(120, 130, 300, 900)
-
-#Define the dimenstions of the programming ui 
-programming_ui_dimensions = pygame.Rect(120, 130, 1680, 900)
-
-#Define the dimensions of the text box the user can click
-programming_ui_text = pygame.Rect(140, 180, 1640, 800)
-
-#Define color for the main placement portion
-PLACE_COLOR = (237, 255, 217)
-
-#Define color for the location of components
-PLACE_ITEMS_COLOR = (145, 145, 144)
-
-#Define color for the writing_ui
-PROGRAM_COLOR = (69, 63, 63)
-
-#Define color of the text that shows up when 
-#User types
-PROGRAM_TEXT_COLOR = (255, 255, 255)
-
-#Define the font of the text that shows up when
-#The user types
-base_font = pygame.font.Font(None, 32)
-
-#Holds the users text
-program_text = ""
-
-#Defines the current level if the user has clicked 
-#The programming_ui_text to allow user input
-active_text_input = False
-
-
 #mainloop
 while running == True:
 
@@ -160,23 +119,6 @@ while running == True:
         #if click x end loop
         if event.type == pygame.QUIT:
             running = False
-
-        elif event.type == pygame.KEYDOWN:
-
-            #This listens if the Tab key is pressed
-            #Then brings up the placement_ui 
-            if event.key == pygame.K_TAB:
-                placement_ui = not placement_ui
-
-            #This will check if the key 1 is pressed
-            #Then brings up the writing_ui only when the
-            #Placement_ui is already open
-            if placement_ui:
-                if event.key == pygame.K_1:
-                    writing_ui = True
-                
-                #elif writing_ui == True and pygame.K_ESCAPE:
-                    #writing_ui = False
 
         #if click any button
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -199,14 +141,6 @@ while running == True:
                     character_creator.start(screen, create_character_rect)
                     draw_start()
 
-            #This will check if the user has enabled text input by
-            #looking to see if the user clicked anywhere in the programming_ui_text
-            if programming_ui_text.collidepoint(event.pos):
-                active_text_input = True
-
-        #This will track the inputs made by the user and add them
-        if event.type == pygame.KEYDOWN and active_text_input:
-            program_text += event.unicode
 
 
     #game logic
@@ -280,23 +214,6 @@ while running == True:
     screen.blit(create_character_text, create_character_text.get_rect(center=create_character_rect.center))
 
 
-    #Checks if the placement_ui is set to true
-    #Then draws the rectangles for it
-    if placement_ui:
-        pygame.draw.rect(screen, PLACE_COLOR, placement_ui_dimensions, border_radius = 10)
-        pygame.draw.rect(screen, PLACE_ITEMS_COLOR, placement_ui_items_dimensions, border_top_left_radius = 10, border_bottom_left_radius = 10)
-
-    #Checks if the writing_ui is set to true
-    #Then draws the rectangle for it
-    if writing_ui:
-        pygame.draw.rect(screen, PROGRAM_COLOR, programming_ui_dimensions, border_radius = 10)
-        pygame.draw.rect(screen, PROGRAM_COLOR, programming_ui_text)
-
-    #Checks if user has clicked on the active_text_input
-    #Then renders the keys pressed onto the screen
-    if active_text_input:
-        text_surface = base_font.render(program_text, True, PROGRAM_TEXT_COLOR)
-        screen.blit(text_surface, (0, 0))
 
     #update display
     pygame.display.flip()
