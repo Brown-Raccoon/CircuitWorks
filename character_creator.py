@@ -62,7 +62,7 @@ def start(screen, anchor_rect):
     #preview window
     preview_rect = pygame.Rect(panel_rect.x + 20, panel_rect.y + 20, 70, 70)
 
-    #hue bar (only used when no sprite is selected - see the "Default" button below)
+    #hue bar (edits smiley color or tints the selected sprite)
     bar_rect = pygame.Rect(panel_rect.x + 20, preview_rect.bottom + 30, 240, 35)
     hue_bar_surface = build_hue_bar_surface(bar_rect.width, bar_rect.height)
 
@@ -93,6 +93,7 @@ def start(screen, anchor_rect):
 
     #the sprite the player currently has selected in THIS panel (not yet saved to character.py)
     selected_sprite_id = character.get_sprite()
+    selected_tint = character.get_sprite_tint()
 
     #hex textbox state
     hex_text = rgb_to_hex(starting_color)
@@ -120,8 +121,10 @@ def start(screen, anchor_rect):
                         dragging_bar = True
                         hue = get_hue_from_pos(event.pos, bar_rect)
                         hex_active = False
-                        #picking a color switches back to the smiley
-                        selected_sprite_id = None
+                        r, g, b = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+                        current_color = (int(r * 255), int(g * 255), int(b * 255))
+                        if selected_sprite_id is not None:
+                            selected_tint = current_color
 
 
                     #clicked on hex box
@@ -140,6 +143,7 @@ def start(screen, anchor_rect):
                     #clicked the "Default" (smiley) button
                     elif default_rect.collidepoint(event.pos):
                         selected_sprite_id = None
+                        selected_tint = None
                         hex_active = False
 
                     #clicked one of the sprite thumbnails
@@ -148,6 +152,7 @@ def start(screen, anchor_rect):
                         for sprite_id, rect in sprite_rects.items():
                             if rect.collidepoint(event.pos):
                                 selected_sprite_id = sprite_id
+                                selected_tint = None  # Use original sprite colors until changed
                                 hex_active = False
                                 clicked_sprite = True
                                 break
@@ -164,6 +169,10 @@ def start(screen, anchor_rect):
                 #should keep updating the hue while the mouse is held down
                 if dragging_bar:
                     hue = get_hue_from_pos(event.pos, bar_rect)
+                    r, g, b = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+                    current_color = (int(r * 255), int(g * 255), int(b * 255))
+                    if selected_sprite_id is not None:
+                        selected_tint = current_color
 
             elif event.type == pygame.KEYDOWN and hex_active:
                 #backspace the last typed character
@@ -174,9 +183,10 @@ def start(screen, anchor_rect):
                 elif event.key == pygame.K_RETURN:
                     parsed = hex_to_rgb(hex_text)
                     if parsed is not None:
-                        hue, _, _ = colorsys.rgb_to_hsv(parsed[0] / 255, parsed [1] / 255, parsed[2] / 255)
-                        #typing a hex color also switches back to the smiley
-                        selected_sprite_id = None
+                        current_color = parsed  # Preserve the exact hex value
+                        hue, _, _ = colorsys.rgb_to_hsv(parsed[0] / 255, parsed[1] / 255, parsed[2] / 255)
+                        if selected_sprite_id is not None:
+                            selected_tint = current_color
                     hex_active = False
 
                 #needs to be valid hex format
@@ -185,10 +195,6 @@ def start(screen, anchor_rect):
 
                     if typed_char in "0123456789ABCDEF" and len(hex_text) < 6:
                         hex_text += typed_char
-
-        #compute color from hue every frame
-        r, g, b = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
-        current_color = (int(r * 255), int(g * 255), int(b * 255))
 
 
         #keep sync between hex box and bar
@@ -207,7 +213,8 @@ def start(screen, anchor_rect):
         pygame.draw.rect(screen, (20, 20, 20), preview_rect)
         #clip so a tall sprite can't spill outside the preview box
         screen.set_clip(preview_rect)
-        character.draw(screen, preview_rect.x, preview_rect.y, preview_rect.width, current_color, selected_sprite_id)
+        character.draw(screen, preview_rect.x, preview_rect.y, preview_rect.width,
+                       current_color, selected_sprite_id, selected_tint)
         screen.set_clip(None)
 
         preview_label = label_font.render("Preview", True, (255, 255, 255))
@@ -263,9 +270,8 @@ def start(screen, anchor_rect):
 
     if confirmed:
         character.set_sprite(selected_sprite_id)
-        #only save the color if we're actually staying on the smiley
-        if selected_sprite_id is None:
-            character.set_color(current_color)
+        character.set_color(current_color)
+        character.set_sprite_tint(selected_tint)
 
 
 

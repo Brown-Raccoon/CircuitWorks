@@ -31,17 +31,12 @@ pygame.init()
 screen = pygame.display.set_mode((0,0),pygame.NOFRAME)
 screen_width, screen_height = screen.get_size()
 
-#screen_width = 1280
-#screen_height = 720
-
 #set up display screen
 #fontsizes
 title_font = pygame.font.SysFont("arial", 192, bold=True)
 button_font = pygame.font.SysFont("arial", 64)
+character_button_font = pygame.font.SysFont("arial", 36)
 
-#######Custom Font
-#custom_font = pygame.font.Font("determination.ttf", 45)
-#title_font = pygame.font.SysFont(custom_font, 192, bold=True)
 
 #create Buttons
 btn_w, btn_h = 280,80
@@ -50,9 +45,9 @@ btn_x = (screen_width - btn_w) - 100
 
 #vertical spaceing of buttons
 start_y = 440
-load_y = 550
-settings_y = 660
-quit_y = 770
+load_y = 630
+settings_y = 740
+quit_y = 850
 
 #create button interactions
 start_rect = pygame.Rect(btn_x, start_y, btn_w, btn_h)
@@ -62,8 +57,9 @@ quit_rect = pygame.Rect(btn_x, quit_y, btn_w, btn_h)
 
 background_image = pygame.image.load("G-Sugar_Beet.jpg").convert()
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
-#create character button wider than the others so the label fits
-cc_w, cc_h = 280, 50
+#size the character button to fit its label with some padding
+cc_text_w, cc_text_h = character_button_font.size("Create Character")
+cc_w, cc_h = max(280, cc_text_w + 40), max(60, cc_text_h + 20)
 cc_x = (screen_width - cc_w)//2
 cc_y = quit_y + 80
 create_character_rect = pygame.Rect(cc_x, cc_y, cc_w, cc_h)
@@ -111,6 +107,7 @@ title_surface = title_font.render("CircuitWorks", True, STEEL)
 title_rect = title_surface.get_rect(center = (screen_width //2, 150))
 screen.blit(title_surface, title_rect)
 
+
 #mainloop
 while running == True:
 
@@ -122,6 +119,7 @@ while running == True:
         #if click x end loop
         if event.type == pygame.QUIT:
             running = False
+
         #if click any button
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -141,11 +139,11 @@ while running == True:
                 #if click create character button
                 if create_character_rect.collidepoint(mouse_pos):
                     character_creator.start(screen, create_character_rect)
+                    draw_start()
+
+
 
     #game logic
-
-    #draw screen
-    #screen.fill(BLACK)
 
 
     #draw buttons
@@ -163,8 +161,6 @@ while running == True:
         start_text = button_font.render("Start", True, GRAY)
         start_hover = False
     screen.blit(start_text, start_text.get_rect(center=start_rect.center))
-
-
 
     #load
     if load_rect.collidepoint(mouse_pos):
@@ -210,12 +206,14 @@ while running == True:
     if create_character_rect.collidepoint(mouse_pos):
         # Brighter when hovered
         pygame.draw.rect(screen, BLUE, create_character_rect)
-        create_character_text = button_font.render("Create Character", True, WHITE)
+        create_character_text = character_button_font.render("Create Character", True, WHITE)
     #otherwise normal color
     else:
         pygame.draw.rect(screen, DARK_GRAY, create_character_rect)
-        create_character_text = button_font.render("Create Character", True, GRAY)
+        create_character_text = character_button_font.render("Create Character", True, GRAY)
     screen.blit(create_character_text, create_character_text.get_rect(center=create_character_rect.center))
+
+
 
     #update display
     pygame.display.flip()

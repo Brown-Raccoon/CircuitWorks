@@ -41,7 +41,9 @@ def get_items_by_category(player_inventory, category):
 # returns the main panel and both category rectangles
 # this keeps drawing and click detection using the exact same layout
 def get_inventory_layout(screen):
-    screen_width, screen_height = screen.get_size()
+    screen_width, screen_height = (
+        screen if isinstance(screen, tuple) else screen.get_size()
+    )
 
     # panel size
     panel_width = min(900, screen_width - 120)
@@ -155,11 +157,12 @@ def get_place_button_rect(row_rect):
     )
 
 
-# checks whether the player clicked a machine's Place button
-# returns the machine item key, or None if no Place button was clicked
+# checks whether the player clicked a Place button
+# returns the item key, or None if no Place button was clicked
 def handle_click(screen, mouse_pos, player_inventory):
-    _, _, machines_rect = get_inventory_layout(screen)
+    _, components_rect, machines_rect = get_inventory_layout(screen)
 
+    # Machines - in Machines section, no filter
     machine_rows = get_category_rows(
         machines_rect,
         player_inventory,
@@ -167,9 +170,34 @@ def handle_click(screen, mouse_pos, player_inventory):
     )
 
     for item_key, quantity, item_info, row_rect in machine_rows:
-
         place_button_rect = get_place_button_rect(row_rect)
+        if place_button_rect.collidepoint(mouse_pos):
+            return item_key
 
+    # Power cable - in Components section, only power_cable gets a button
+    component_rows = get_category_rows(
+        components_rect,
+        player_inventory,
+        "component"
+    )
+
+    for item_key, quantity, item_info, row_rect in component_rows:
+        if item_key != "power_cable":
+            continue
+        place_button_rect = get_place_button_rect(row_rect)
+        if place_button_rect.collidepoint(mouse_pos):
+            return item_key
+
+    _, components_rect, _ = get_inventory_layout(screen)
+    component_rows = get_category_rows(
+        components_rect,
+        player_inventory,
+        "component"
+    )
+    for item_key, quantity, item_info, row_rect in component_rows:
+        if item_key != "power_cable":
+            continue
+        place_button_rect = get_place_button_rect(row_rect)
         if place_button_rect.collidepoint(mouse_pos):
             return item_key
 
@@ -346,9 +374,11 @@ def draw_category_section(
 
         # only machine rows receive Place buttons
         if category == "machine":
-            place_button_rect = get_place_button_rect(
-                row_rect
-            )
+            place_button_rect = get_place_button_rect(row_rect)
+
+        # power_cable gets a Place button in Components
+        elif category == "component" and item_key == "power_cable":
+            place_button_rect = get_place_button_rect(row_rect)
 
         draw_item_row(
             screen,
